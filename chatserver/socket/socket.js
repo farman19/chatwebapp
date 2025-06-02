@@ -12,7 +12,7 @@ import http from "http";
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ['https://chatx-xilj.onrender.com'],
+        origin: ['https://chatxfrontend.onrender.com'],
         credentials: true
     },
 });
