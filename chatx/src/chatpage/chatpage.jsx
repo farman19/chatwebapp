@@ -74,17 +74,17 @@ const Chatpage = () => {
     // }, [messages]);
 
     // Cleanup object URLs on unmount
-   useEffect(() => {
-    return () => {
-        if (Array.isArray(allmessage.files)) {
-            allmessage.files.forEach((file) => {
-                if (file?.previewURL) {
-                    URL.revokeObjectURL(file.previewURL);
-                }
-            });
-        }
-    };
-}, [allmessage.files]);
+    useEffect(() => {
+        return () => {
+            if (Array.isArray(allmessage.files)) {
+                allmessage.files.forEach((file) => {
+                    if (file?.previewURL) {
+                        URL.revokeObjectURL(file.previewURL);
+                    }
+                });
+            }
+        };
+    }, [allmessage.files]);
 
 
     const filteredMessages = Array.isArray(messages) && selectedUser && authUser
@@ -118,7 +118,7 @@ const Chatpage = () => {
 
         try {
             const response = await axios.post(
-                `http://localhost:8070/api/v1/message/send/${selectedUser?._id}`,
+                `https://your-backend.onrender.com/api/v1/message/send/${selectedUser?._id}`,
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -150,7 +150,7 @@ const Chatpage = () => {
 
         try {
             const response = await axios.delete(
-                `http://localhost:8070/api/v1/message/chat/${selectedUser._id}`,
+                `https://your-backend.onrender.com/api/v1/message/chat/${selectedUser._id}`,
                 { withCredentials: true }
             );
 
@@ -165,7 +165,7 @@ const Chatpage = () => {
     // Logout handler
     const handlelogout = async () => {
         try {
-            await axios.get("http://localhost:8070/api/v1/user/logout", { withCredentials: true });
+            await axios.get("https://your-backend.onrender.com/api/v1/user/logout", { withCredentials: true });
 
             if (socket) {
                 socket.disconnect();
@@ -254,35 +254,36 @@ const Chatpage = () => {
 
                             </div>
                         </div>
-                        {selectedUser ? (
-                            <div className={`chat-right ${selectedUser?._id ? 'right-add' : ''}`}>
-                                <div className="chat-right-top">
-                                    <div className="chat-right-heading">
-                                        <div className={`arrow-left ${selectedUser?._id ? 'right-sub' : ''}`} onClick={() => dispatch(setSelectedUser(null))}>
-                                            <FaArrowLeft />
-                                        </div>
-                                        <div className="chat-right-top-img-box">
-                                            <div className="chat-right-img">
-                                                <img src={selectedUser?.profilePhoto} alt="" />
-                                            </div>
-                                        </div>
-                                        <div className="chat-right-img-detail">
-                                            <div className="chat-right-name">
-                                                <p>{selectedUser?.username}</p>
-                                            </div>
+
+                        <div className={`chat-right ${selectedUser?._id ? 'right-add' : ''}`}>
+                            <div className="chat-right-top">
+                                <div className="chat-right-heading">
+                                    <div className={`arrow-left ${selectedUser?._id ? 'right-sub' : ''}`} onClick={() => dispatch(setSelectedUser(null))}>
+                                        <FaArrowLeft />
+                                    </div>
+                                    <div className="chat-right-top-img-box">
+                                        <div className="chat-right-img">
+                                            <img src={selectedUser?.profilePhoto} alt="" />
                                         </div>
                                     </div>
-                                    <div className='del-top-btn'>
-                                        {selectedUser?._id && (
-                                            <Button onClick={handleDeleteChat}>Delete Chat</Button>
-                                        )}
+                                    <div className="chat-right-img-detail">
+                                        <div className="chat-right-name">
+                                            <p>{selectedUser?.username}</p>
+                                        </div>
                                     </div>
                                 </div>
+                                <div className='del-top-btn'>
+                                    {selectedUser?._id && (
+                                        <Button onClick={handleDeleteChat}>Delete Chat</Button>
+                                    )}
+                                </div>
+                            </div>
 
-                                <div className="chat-right-conversation">
-                                    <div className="chat-container">
-                                        <div className="chat-right-communication">
-                                            {filteredMessages && filteredMessages.length > 0 ? (
+                            <div className="chat-right-conversation">
+                                <div className="chat-container">
+                                    <div className="chat-right-communication">
+                                        {selectedUser ? (
+                                            filteredMessages && filteredMessages.length > 0 ? (
                                                 filteredMessages
                                                     .filter((msg) => msg.message || (msg.fileurl && msg.fileurl.length > 0))
                                                     .map((msg) => {
@@ -337,7 +338,7 @@ const Chatpage = () => {
                                                                 {/* Single fileurl */}
                                                                 {!Array.isArray(msg.fileurl) && msg.fileurl && (
                                                                     msg.fileurl.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                                                                        <img src={msg.fileurl} className="sent-image" />
+                                                                        <img src={msg.fileurl} className="sent-image" alt="sent file" />
                                                                     ) : (
                                                                         <a
                                                                             href={msg.fileurl}
@@ -358,99 +359,101 @@ const Chatpage = () => {
                                                 <div className="no-message">
                                                     <p>No messages</p>
                                                 </div>
-                                            )}
-                                        </div>
+                                            )
+                                        ) : (
+                                            <div className="no-message">
+                                                <p>Please select a user to start chatting.</p>
+                                            </div>
+                                        )}
 
-                                        {/* Input Area */}
-                                        <div className="input-area">
-                                            <form onSubmit={onsubmithandler}>
-                                                <div className="input-wrapper">
-                                                    <label htmlFor="file-upload" className="file-icon">📎</label>
-                                                    <input
-                                                        id="file-upload"
-                                                        type="file"
-                                                        multiple
-                                                        onChange={(e) => {
-                                                            const selectedFiles = Array.from(e.target.files).map(file => {
-                                                                const timestamp = Date.now();
-                                                                const ext = file.name.substring(file.name.lastIndexOf('.'));
-                                                                const uniqueName = `${file.name.split('.')[0]}-${timestamp}${ext}`;
+                                    </div>
 
-                                                                const renamedFile = new File([file], uniqueName, { type: file.type });
+                                    {/* Input Area */}
+                                    <div className="input-area">
+                                        <form onSubmit={onsubmithandler}>
+                                            <div className="input-wrapper">
+                                                <label htmlFor="file-upload" className="file-icon">📎</label>
+                                                <input
+                                                    id="file-upload"
+                                                    type="file"
+                                                    multiple
+                                                    onChange={(e) => {
+                                                        const selectedFiles = Array.from(e.target.files).map(file => {
+                                                            const timestamp = Date.now();
+                                                            const ext = file.name.substring(file.name.lastIndexOf('.'));
+                                                            const uniqueName = `${file.name.split('.')[0]}-${timestamp}${ext}`;
 
-                                                                return {
-                                                                    file: renamedFile,
-                                                                    type: file.type,
-                                                                    name: uniqueName,
-                                                                    previewURL: URL.createObjectURL(renamedFile),
-                                                                };
-                                                            });
+                                                            const renamedFile = new File([file], uniqueName, { type: file.type });
 
-                                                            setAllMessage({ ...allmessage, files: selectedFiles });
-                                                        }}
-                                                        style={{ display: 'none' }}
-                                                    />
+                                                            return {
+                                                                file: renamedFile,
+                                                                type: file.type,
+                                                                name: uniqueName,
+                                                                previewURL: URL.createObjectURL(renamedFile),
+                                                            };
+                                                        });
 
-                                                    {Array.isArray(allmessage.files) && allmessage.files.length > 0 && (
-                                                        <div className="selected-file-list">
-                                                            {allmessage.files.map((file, index) => {
-                                                                const isImage = file?.type?.startsWith("image/");
-                                                                return (
-                                                                    <div key={index} className="selected-file-preview">
-                                                                        {isImage ? (
-                                                                            <div className="image-preview-container">
-                                                                                <img src={file.previewURL} alt="preview" className="image-preview" />
-                                                                                <span
-                                                                                    className="remove-image-btn"
-                                                                                    title="Remove file"
-                                                                                    onClick={() => {
-                                                                                        const updatedFiles = allmessage.files.filter((_, i) => i !== index);
-                                                                                        setAllMessage({ ...allmessage, files: updatedFiles });
-                                                                                        URL.revokeObjectURL(file.previewURL);
-                                                                                    }}
-                                                                                >
-                                                                                    ❌
-                                                                                </span>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <div className="file-name-container">
-                                                                                📄 {file.name}
-                                                                                <span
-                                                                                    className="remove-file-btn"
-                                                                                    onClick={() => {
-                                                                                        const updatedFiles = allmessage.files.filter((_, i) => i !== index);
-                                                                                        setAllMessage({ ...allmessage, files: updatedFiles });
-                                                                                        URL.revokeObjectURL(file.previewURL);
-                                                                                    }}
-                                                                                >
-                                                                                    ❌
-                                                                                </span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    )}
+                                                        setAllMessage({ ...allmessage, files: selectedFiles });
+                                                    }}
+                                                    style={{ display: 'none' }}
+                                                />
 
-                                                    <input
-                                                        className="text-input"
-                                                        value={allmessage.message}
-                                                        onChange={(e) => setAllMessage({ ...allmessage, message: e.target.value })}
-                                                        placeholder="Type your message..."
-                                                    />
-                                                </div>
-                                                <Button type='submit'>Send</Button>
-                                            </form>
-                                        </div>
+                                                {Array.isArray(allmessage.files) && allmessage.files.length > 0 && (
+                                                    <div className="selected-file-list">
+                                                        {allmessage.files.map((file, index) => {
+                                                            const isImage = file?.type?.startsWith("image/");
+                                                            return (
+                                                                <div key={index} className="selected-file-preview">
+                                                                    {isImage ? (
+                                                                        <div className="image-preview-container">
+                                                                            <img src={file.previewURL} alt="preview" className="image-preview" />
+                                                                            <span
+                                                                                className="remove-image-btn"
+                                                                                title="Remove file"
+                                                                                onClick={() => {
+                                                                                    const updatedFiles = allmessage.files.filter((_, i) => i !== index);
+                                                                                    setAllMessage({ ...allmessage, files: updatedFiles });
+                                                                                    URL.revokeObjectURL(file.previewURL);
+                                                                                }}
+                                                                            >
+                                                                                ❌
+                                                                            </span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="file-name-container">
+                                                                            📄 {file.name}
+                                                                            <span
+                                                                                className="remove-file-btn"
+                                                                                onClick={() => {
+                                                                                    const updatedFiles = allmessage.files.filter((_, i) => i !== index);
+                                                                                    setAllMessage({ ...allmessage, files: updatedFiles });
+                                                                                    URL.revokeObjectURL(file.previewURL);
+                                                                                }}
+                                                                            >
+                                                                                ❌
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+
+                                                <input
+                                                    className="text-input"
+                                                    value={allmessage.message}
+                                                    onChange={(e) => setAllMessage({ ...allmessage, message: e.target.value })}
+                                                    placeholder="Type your message..."
+                                                />
+                                            </div>
+                                            <Button type='submit'>Send</Button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="no-message">
-                                <p>Please select a user to start chatting.</p>
-                            </div>
-                        )}
+                        </div>
+
 
                     </div>
                 </div>
