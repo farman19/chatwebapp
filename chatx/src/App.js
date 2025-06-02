@@ -1,5 +1,5 @@
 // import logo from './logo.svg';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider,Navigate } from 'react-router-dom';
 import './App.css';
 import ChatPage from "./chatpage/chatpage";
 import LoginPage from './loginpage/loginpage';
