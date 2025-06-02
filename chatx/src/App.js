@@ -24,7 +24,7 @@ const {socket}=useSelector(store=>store.socket)
    const dispatch =useDispatch();
 useEffect(() => {
   if (authUser) {
-    const socket = io('https://your-backend.onrender.com', {
+    const socket = io('https://chatx-xilj.onrender.com', {
         query:{
           userId:authUser._id
         },

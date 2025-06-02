@@ -18,7 +18,7 @@ const useGetMessages = () => {
       try {
         axios.defaults.withCredentials = true;
        const res = await axios.get(
-  `https://your-backend.onrender.com/api/v1/message/${authUser._id}/${selectedUser._id}`
+  `https://chatx-xilj.onrender.com/api/v1/message/${authUser._id}/${selectedUser._id}`
 );
    
 console.log("========", res.data)

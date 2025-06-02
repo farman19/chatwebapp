@@ -34,7 +34,7 @@ const LoginPage = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('https://your-backend.onrender.com/api/v1/user/login', user, {
+            const response = await axios.post('https://chatx-xilj.onrender.com/api/v1/user/login', user, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -44,7 +44,7 @@ const LoginPage = () => {
             dispatch(setAuthUser(response.data));
 
             // ✅ socket initialize करें और userId भेजें
-            const socket = io("https://your-backend.onrender.com", {
+            const socket = io("https://chatx-xilj.onrender.com", {
                 query: {
                     userId: response.data._id
                 },

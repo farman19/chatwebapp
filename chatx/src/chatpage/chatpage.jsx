@@ -118,7 +118,7 @@ const Chatpage = () => {
 
         try {
             const response = await axios.post(
-                `https://your-backend.onrender.com/api/v1/message/send/${selectedUser?._id}`,
+                `https://chatx-xilj.onrender.com/api/v1/message/send/${selectedUser?._id}`,
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -150,7 +150,7 @@ const Chatpage = () => {
 
         try {
             const response = await axios.delete(
-                `https://your-backend.onrender.com/api/v1/message/chat/${selectedUser._id}`,
+                `https://chatx-xilj.onrender.com/api/v1/message/chat/${selectedUser._id}`,
                 { withCredentials: true }
             );
 
