@@ -1,0 +1,6 @@
+PORT = 8080
+MONGO_URI = mongodb+srv://neha4022002:k5yUZslJqbojtj1y@products.sgczh.mongodb.net/
+CLOUDINARY_CLOUD_NAME = dpc49fmcr
+CLOUDINARY_API_KEY = 669896771734452
+CLOUDINARY_API_SECRET = DptkdkqGNSkLHwSY3WCO6mwx4X8
+JWT_SECRET_KEY = asnnnhjksdjfnnnd
