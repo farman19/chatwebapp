@@ -405,12 +405,24 @@
 .chat-section .chat-header .chat-box .chat-right .chat-right-top .chat-right-heading .chat-right-top-img-box {
   width: 70px;
   height: 100%; 
-  /* background-color: blue; */
+  background-color: blue;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
 }
+
+ .online{
+  width: 5px ;
+  height: 5px ;
+  background-color: rgb(166, 64, 64);
+  border-radius: 50%;
+  padding: 5px;
+  position: absolute;z-index: 1;
+  border: 0.7px solid #72f99d;
+  left: 40px;
+  top: 15px;
+ }
 
 .chat-section .chat-header .chat-box .chat-right .chat-right-top .chat-right-heading .chat-right-top-img-box .chat-right-img {
   width: 40px;

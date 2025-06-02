@@ -222,7 +222,7 @@ const Chatpage = () => {
                                             user.fullname.toLowerCase().includes(searchTerm.toLowerCase())
                                         )
                                         .map((user) => {
-                                            const isOnline = onlineUsers?.includes(user._id); // ✅ Check if THIS user is online
+                                            const isOnline = onlineUsers?.includes(user._id); 
 
                                             return (
                                                 <div
@@ -232,7 +232,7 @@ const Chatpage = () => {
                                                 >
                                                     <>
                                                         <div className="chat-img-box">
-                                                            <div className={isOnline ? "online" : ""}></div> {/* ✅ correct now */}
+                                                            <div className={isOnline ? "online" : ""}></div> 
                                                             <div className="chat-user-img">
                                                                 <img src={user?.profilePhoto} alt="" />
                                                             </div>
@@ -262,6 +262,7 @@ const Chatpage = () => {
                                         <FaArrowLeft />
                                     </div>
                                     <div className="chat-right-top-img-box">
+                                         <div className={isOnline ? "online" : ""}></div> 
                                         <div className="chat-right-img">
                                             <img src={selectedUser?.profilePhoto} alt="" />
                                         </div>
