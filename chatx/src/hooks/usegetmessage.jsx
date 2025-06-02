@@ -18,7 +18,7 @@ const useGetMessages = () => {
       try {
         axios.defaults.withCredentials = true;
        const res = await axios.get(
-  `http://localhost:8070/api/v1/message/${authUser._id}/${selectedUser._id}`
+  `https://your-backend.onrender.com/api/v1/message/${authUser._id}/${selectedUser._id}`
 );
    
 console.log("========", res.data)

@@ -24,7 +24,7 @@ const {socket}=useSelector(store=>store.socket)
    const dispatch =useDispatch();
 useEffect(() => {
   if (authUser) {
-    const socket = io('http://localhost:8070', {
+    const socket = io('https://your-backend.onrender.com', {
         query:{
           userId:authUser._id
         },

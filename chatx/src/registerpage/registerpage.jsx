@@ -33,7 +33,7 @@ const RegisterPage = () => {
 
      try {
     
-      const response = await axios.post('http://localhost:8070/api/v1/user/register', user, {
+      const response = await axios.post('https://your-backend.onrender.com/api/v1/user/register', user, {
 
         headers: {
           'Content-Type': 'application/json',
