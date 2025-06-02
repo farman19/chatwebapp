@@ -1,7 +1,7 @@
 // src/components/ProtectedRoute.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuthUser } from "../hooks/useAuthUser";
+import { useAuthUser } from "../../hooks/usergetotheruser";
 
 const ProtectedRoute = ({ children }) => {
   const authUser = useAuthUser();
