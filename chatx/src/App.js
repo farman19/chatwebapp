@@ -10,8 +10,8 @@ import {io} from 'socket.io-client'
 import { setOnlineUsers } from './redux/userSlice';
 import { setSocket } from './redux/socketSlice';
 import store from './redux/store';
-
-
+import ProtectedRoute from './components/protectedroute/protectroute';
+import GuestRoute from './components/guestroute/guestroute';
 
 
 
@@ -53,29 +53,33 @@ const routes = createBrowserRouter([
   {
     path: "/",
     element: (
-    
-        <ChatPage />
-      
-    ),
+        <ProtectedRoute>
+          <ChatPage />
+        </ProtectedRoute>
+      ),
   
   },
  
   {
     path: "/loginpage",
     element: (
-     
-        <LoginPage />
-      
-    ),
+        <GuestRoute>
+          <LoginPage />
+        </GuestRoute>
+      ),
   },
   {
     path: "/registerpage",
-    element: (
-      
-        <RegisterPage />
-      
-    ),
+   element: (
+        <GuestRoute>
+          <RegisterPage />
+        </GuestRoute>
+      ),
   },
+   {
+      path: "*",
+      element: <Navigate to="/" replace />,
+    },
 ]);
 
 
