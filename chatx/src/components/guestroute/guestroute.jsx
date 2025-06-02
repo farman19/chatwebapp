@@ -1,10 +1,11 @@
 // src/components/GuestRoute.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuthUser } from "../hooks/useAuthUser";
+import { useSelector } from "react-redux";
 
 const GuestRoute = ({ children }) => {
-  const authUser = useAuthUser();
+const authUser = useSelector(store => store.user.authUser);
+
 
   // अगर पहले से लॉगिन है तो ChatPage ("/") पर रिडायरेक्ट कर दो
   if (authUser) {

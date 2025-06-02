@@ -1,16 +1,15 @@
 // src/components/ProtectedRoute.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuthUser } from "../../hooks/usergetotheruser";
+import { useSelector } from "react-redux";
 
 const ProtectedRoute = ({ children }) => {
-  const authUser = useAuthUser();
+  const authUser = useSelector(store => store.user.authUser);
 
-  // अगर लॉगिन नहीं है तो LoginPage पर चले जाओ
   if (!authUser) {
     return <Navigate to="/loginpage" replace />;
   }
-  // वरना चाइल्ड कंपोनेंट (ChatPage) रेंडर करो
+
   return children;
 };
 
