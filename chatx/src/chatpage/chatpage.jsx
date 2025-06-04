@@ -165,12 +165,14 @@ const Chatpage = () => {
     // Logout handler
     const handlelogout = async () => {
         try {
-            await axios.get("https://chatx-xilj.onrender.com/api/v1/user/logout", { withCredentials: true });
 
-            if (socket) {
+              if (socket) {
                 socket.disconnect();
                 dispatch(setSocket(null));
             }
+            await axios.get("https://chatx-xilj.onrender.com/api/v1/user/logout", { withCredentials: true });
+
+          
 
 
 
