@@ -16,7 +16,8 @@ export const sendMessage = async (req, res) => {
     const senderId = req.id; 
     const receiverId = req.params.id;
     const message = req.body.message;  
-    const fileUrls = req.files.map(file => `https://chatx-xilj.onrender.com/files/${file.filename}`); 
+   const fileUrls = req.files?.map(file => `https://chatx-xilj.onrender.com/uploads/${file.filename}`) || [];
+
 
 
     console.log("file", fileUrls)
@@ -47,17 +48,14 @@ export const sendMessage = async (req, res) => {
     }
 
  
-     const fileurl = req.files?.map(file => {
-     
-      return `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
-    }) || [];
-    // console.log(fileurl)
+    //  const fileUrls = req.files?.map(file => `https://chatx-xilj.onrender.com/uploads/${file.filename}`) || [];
+
 
     const newMessage = await Message.create({
       senderId,
       receiverId,
       message,
-      fileurl,
+      fileurl:fileUrls,
     });
 
     // console.log("=====",newMessage.message)
