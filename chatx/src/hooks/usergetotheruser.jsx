@@ -12,9 +12,10 @@ const useGetOtherUsers = () => {
             try {
                 axios.defaults.withCredentials = true;
                 const res = await axios.get(`https://chatx-xilj.onrender.com/api/v1/user/`);
+                console.log("✅ User data fetched:", res.data);
                 dispatch(setOtherUsers(res.data));
             } catch (error) {
-                console.log("Fetch error", error.response?.data || error.message);
+                console.log("❌ Fetch error", error.response?.data || error.message);
             }
         };
         fetchOtherUsers();
