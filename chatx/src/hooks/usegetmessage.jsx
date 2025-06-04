@@ -11,7 +11,7 @@ const useGetMessages = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       if (!authUser?._id || !selectedUser?._id) {
-        dispatch(setMessages([])); // Clear if no chat selected
+        // dispatch(setMessages([])); // Clear if no chat selected
         return;
       }
 
