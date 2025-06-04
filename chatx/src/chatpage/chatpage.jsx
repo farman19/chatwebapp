@@ -15,7 +15,8 @@ import useGetMessages from '../hooks/usegetmessage';
 // import {selectedUser} from '../redux/userSlice'
 import { FaComments } from 'react-icons/fa';
 import { FaArrowLeft } from "react-icons/fa6";
-
+import { persistor } from "../redux/store";  
+import { setAuthUser } from '../redux/userSlice';
 import { clearMessagesForUser, setMessages } from '../redux/messageSlice';
 // import { Picker } from 'emoji-mart';
 import { setSocket } from "../redux/socketSlice";
@@ -163,26 +164,37 @@ const Chatpage = () => {
     };
 
     // Logout handler
-    const handlelogout = async () => {
-        try {
+//    import { persistor } from "../redux/store"; // जहां आपने store बनाया है
 
-              if (socket) {
-                socket.disconnect();
-                dispatch(setSocket(null));
-            }
-            await axios.get("https://chatx-xilj.onrender.com/api/v1/user/logout", { withCredentials: true });
+const handlelogout = async () => {
+  try {
+    if (socket) {
+      socket.disconnect();
+      dispatch(setSocket(null));
+    }
 
-          
+    await axios.get("https://chatx-xilj.onrender.com/api/v1/user/logout", {
+      withCredentials: true,
+    });
 
+    // ✅ Redux से authUser हटाओ
+    dispatch(setAuthUser(null));
 
+    // ✅ Redux Persist का cache क्लियर करो
+    await persistor.purge();
 
-            toast.success("Logout successful");
-            navigate("/loginpage");
-        } catch (error) {
-            console.error("Logout error:", error);
-            toast.error("Logout failed");
-        }
-    };
+    // ✅ LocalStorage भी manually हटाओ अगर यूज़ हो रहा है
+    localStorage.removeItem("persist:root");
+
+    toast.success("Logout successful");
+
+    // ✅ अब loginpage पर redirect करो
+    navigate("/loginpage");
+  } catch (error) {
+    console.error("Logout error:", error);
+    toast.error("Logout failed");
+  }
+};
 
 
 
