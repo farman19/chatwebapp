@@ -24,7 +24,8 @@ const useGetMessages = () => {
 console.log("========", res.data)
 
         // Make sure res.data.messages exists
-   dispatch(setMessages(Array.isArray(res.data) ? res.data : []));
+  dispatch(setMessages(Array.isArray(res.data.messages) ? res.data.messages : []));
+
 
       } catch (error) {
         console.log("Error fetching messages:", error);

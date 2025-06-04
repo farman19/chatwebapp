@@ -20,8 +20,11 @@ const messageSlice = createSlice({
         );
       }
     },
+     addNewMessage: (state, action) => {
+      state.messages.push(action.payload);
+    },
   },
 });
 
-export const { setMessages, clearMessages, clearMessagesForUser } = messageSlice.actions;
+export const { setMessages, clearMessages, clearMessagesForUser, addNewMessage } = messageSlice.actions;
 export default messageSlice.reducer;
