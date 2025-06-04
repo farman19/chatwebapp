@@ -7,7 +7,7 @@ const socketSlice = createSlice({
     reducers:{
         setSocket:(state, action)=>{
             state.socket = action.payload;
-            // console.log("*****8", state.socket)
+            console.log("*****8", state.socket)
         }
     }
 });
