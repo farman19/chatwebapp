@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
-  origin: "https://chatxfrontend.onrender.com",
+ origin: ["https://chatxfrontend.onrender.com", "http://localhost:3000"],
   credentials: true
 }));
 
