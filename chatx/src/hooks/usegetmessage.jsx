@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setMessages } from "../redux/messageSlice";
+import { setMessages, clearMessages } from "../redux/messageSlice";
 
 const useGetMessages = () => {
   const dispatch = useDispatch();
@@ -9,26 +9,27 @@ const useGetMessages = () => {
   const selectedUser = useSelector((store) => store.user.selectedUser);
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!authUser?._id || !selectedUser?._id) {
-      
-        return;
-      }
+    if (!authUser?._id || !selectedUser?._id) {
+      // जब authUser या selectedUser न हो तो messages साफ़ करें
+      dispatch(clearMessages());
+      return;
+    }
 
+    // जब selectedUser change हो, पुराने messages साफ़ कर दो (optional, UI के लिए)
+    dispatch(clearMessages());
+
+    const fetchMessages = async () => {
       try {
         axios.defaults.withCredentials = true;
-       const res = await axios.get(
-  `https://chatx-xilj.onrender.com/api/v1/message/${authUser._id}/${selectedUser._id}`
-);
-   
-console.log("========", res.data)
-
-        // Make sure res.data.messages exists
-  dispatch(setMessages(Array.isArray(res.data.messages) ? res.data.messages : []));
-
-
+        const res = await axios.get(
+          `https://chatx-xilj.onrender.com/api/v1/message/${authUser._id}/${selectedUser._id}`
+        );
+        // अगर messages array है, तो set करें, नहीं तो खाली array भेजें
+        dispatch(setMessages(Array.isArray(res.data.messages) ? res.data.messages : []));
       } catch (error) {
         console.log("Error fetching messages:", error);
+        // error पर भी messages साफ़ करें
+        dispatch(clearMessages());
       }
     };
 

@@ -64,12 +64,6 @@ const Chatpage = () => {
     useGetOtherUsers();
     useGetMessages();
 
-//   useEffect(() => {
-//     if (selectedUser?._id) {
-//         dispatch(clearMessagesForUser(selectedUser._id)); // ✅ सही तरह से call किया गया
-//     }
-// }, [dispatch, selectedUser?._id]);
-
 
     // Scroll to latest message
     // useEffect(() => {
