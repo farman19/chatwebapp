@@ -11,13 +11,12 @@ const useGetMessages = () => {
   useEffect(() => {
     if (!authUser?._id || !selectedUser?._id) {
       // जब authUser या selectedUser न हो तो messages साफ़ करें
-      dispatch(clearMessages());
+     
       return;
     }
 
     // जब selectedUser change हो, पुराने messages साफ़ कर दो (optional, UI के लिए)
-    dispatch(clearMessages());
-
+   
     const fetchMessages = async () => {
       try {
         axios.defaults.withCredentials = true;
