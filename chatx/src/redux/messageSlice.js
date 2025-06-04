@@ -9,6 +9,9 @@ const messageSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload || [];
     },
+     addNewMessage: (state, action) => {
+      state.messages = [...state.messages, action.payload];
+    },
     clearMessages: (state) => {
       state.messages = [];
     },
@@ -20,9 +23,7 @@ const messageSlice = createSlice({
         );
       }
     },
-     addNewMessage: (state, action) => {
-      state.messages.push(action.payload);
-    },
+   
   },
 });
 
