@@ -12,11 +12,9 @@ const messageSlice = createSlice({
      addNewMessage: (state, action) => {
       state.messages = [...state.messages, action.payload];
     },
-    clearMessages: (state) => {
-      state.messages = [];
-    },
+   
     clearMessagesForUser: (state, action) => {
-      const userIdToClear = action.payload; // the userId you want to clear messages for
+      const userIdToClear = action.payload; 
       if (state.messages) {
         state.messages = state.messages.filter(
           (msg) => msg.senderId !== userIdToClear && msg.receiverId !== userIdToClear
@@ -27,5 +25,5 @@ const messageSlice = createSlice({
   },
 });
 
-export const { setMessages, clearMessages, clearMessagesForUser, addNewMessage } = messageSlice.actions;
+export const { setMessages,  clearMessagesForUser, addNewMessage } = messageSlice.actions;
 export default messageSlice.reducer;

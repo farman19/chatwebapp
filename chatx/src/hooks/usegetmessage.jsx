@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setMessages, clearMessages } from "../redux/messageSlice";
+import { setMessages, clearMessagesForUser } from "../redux/messageSlice";
 
 const useGetMessages = () => {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ const useGetMessages = () => {
       } catch (error) {
         console.log("Error fetching messages:", error);
         // error पर भी messages साफ़ करें
-        dispatch(clearMessages());
+        dispatch(clearMessagesForUser());
       }
     };
 
