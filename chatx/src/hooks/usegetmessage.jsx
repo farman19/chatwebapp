@@ -10,12 +10,11 @@ const useGetMessages = () => {
 
   useEffect(() => {
     if (!authUser?._id || !selectedUser?._id) {
-      // जब authUser या selectedUser न हो तो messages साफ़ करें
+     dispatch(setMessages([]));
      
       return;
     }
 
-    // जब selectedUser change हो, पुराने messages साफ़ कर दो (optional, UI के लिए)
    
     const fetchMessages = async () => {
       try {
