@@ -9,7 +9,7 @@ const useGetMessages = () => {
   const selectedUser = useSelector((store) => store.user.selectedUser);
 
   useEffect(() => {
-    if (!authUser?._id || !selectedUser?._id) {
+    if ( !selectedUser?._id) {
      dispatch(setMessages([]));
      
       return;
