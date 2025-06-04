@@ -68,6 +68,7 @@ export const login = async (req, res) => {
 
         const tokenData = { userId: user._id };
         const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
+         console.log("========>",token)
 
         return res
             .status(200)
@@ -83,6 +84,7 @@ export const login = async (req, res) => {
                 fullname: user.fullname,
                 profilePhoto: user.profilePhoto
             });
+           
 
     } catch (error) {
         console.log(error);
