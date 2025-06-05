@@ -240,7 +240,9 @@ const Chatpage = () => {
                 <div className="chat-header">
                     <div className="chat-top">
                         <div className="chat-heading">
-                            <FaComments style={{ fontSize: '24px', color: '#fff', marginRight: '10px' }} />
+                           <div className='logo-chat'>
+                            <img src='./images/chat.png' alt=''/>
+                           </div>
                             <h1>chat</h1><span>X</span>
                         </div>
                         <div className="my-account-box">
