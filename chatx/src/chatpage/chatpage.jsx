@@ -15,7 +15,7 @@ import useGetMessages from '../hooks/usegetmessage';
 // import {selectedUser} from '../redux/userSlice'
 import { FaComments } from 'react-icons/fa';
 import { FaArrowLeft } from "react-icons/fa6";
-import { persistor } from "../redux/store";  
+import { persistor } from "../redux/store";
 import { setAuthUser } from '../redux/userSlice';
 import { clearMessagesForUser, setMessages } from '../redux/messageSlice';
 // import { Picker } from 'emoji-mart';
@@ -60,7 +60,7 @@ const Chatpage = () => {
     });
 
     // Custom hooks for socket/user/messages
-
+  
     useGetOtherUsers();
     useGetMessages();
 
@@ -152,7 +152,7 @@ const Chatpage = () => {
             );
 
             toast.success(response.data.message || "Chat deleted successfully");
-              dispatch(clearMessagesForUser(selectedUser._id));
+            dispatch(clearMessagesForUser(selectedUser._id));
         } catch (error) {
             console.error("Error deleting chat:", error);
             toast.error("Failed to delete chat");
@@ -160,37 +160,37 @@ const Chatpage = () => {
     };
 
     // Logout handler
-//    import { persistor } from "../redux/store"; // जहां आपने store बनाया है
+    //    import { persistor } from "../redux/store"; // जहां आपने store बनाया है
 
-const handlelogout = async () => {
-  try {
-    if (socket) {
-      socket.disconnect();
-      dispatch(setSocket(null));
-    }
+    const handlelogout = async () => {
+        try {
+            if (socket) {
+                socket.disconnect();
+                dispatch(setSocket(null));
+            }
 
-    await axios.get("https://chatx-xilj.onrender.com/api/v1/user/logout", {
-      withCredentials: true,
-    });
+            await axios.get("https://chatx-xilj.onrender.com/api/v1/user/logout", {
+                withCredentials: true,
+            });
 
-    // ✅ Redux से authUser हटाओ
-    dispatch(setAuthUser(null));
+            // ✅ Redux से authUser हटाओ
+            dispatch(setAuthUser(null));
 
-    // ✅ Redux Persist का cache क्लियर करो
-    await persistor.purge();
+            // ✅ Redux Persist का cache क्लियर करो
+            await persistor.purge();
 
-    // ✅ LocalStorage भी manually हटाओ अगर यूज़ हो रहा है
-    localStorage.removeItem("persist:root");
+            // ✅ LocalStorage भी manually हटाओ अगर यूज़ हो रहा है
+            localStorage.removeItem("persist:root");
 
-    toast.success("Logout successful");
+            toast.success("Logout successful");
 
-    // ✅ अब loginpage पर redirect करो
-    navigate("/loginpage");
-  } catch (error) {
-    console.error("Logout error:", error);
-    toast.error("Logout failed");
-  }
-};
+            // ✅ अब loginpage पर redirect करो
+            navigate("/loginpage");
+        } catch (error) {
+            console.error("Logout error:", error);
+            toast.error("Logout failed");
+        }
+    };
 
 
 
@@ -232,7 +232,7 @@ const handlelogout = async () => {
                                             user.fullname.toLowerCase().includes(searchTerm.toLowerCase())
                                         )
                                         .map((user) => {
-                                            const isOnline = onlineUsers?.includes(user._id); 
+                                            const isOnline = onlineUsers?.includes(user._id);
 
                                             return (
                                                 <div
@@ -242,7 +242,7 @@ const handlelogout = async () => {
                                                 >
                                                     <>
                                                         <div className="chat-img-box">
-                                                            <div className={isOnline ? "online" : ""}></div> 
+                                                            <div className={isOnline ? "online" : ""}></div>
                                                             <div className="chat-user-img">
                                                                 <img src={user?.profilePhoto} alt="" />
                                                             </div>
@@ -272,7 +272,7 @@ const handlelogout = async () => {
                                         <FaArrowLeft />
                                     </div>
                                     <div className="chat-right-top-img-box">
-                                         <div className={isOnline ? "online" : ""}></div> 
+                                        <div className={isOnline ? "online" : ""}></div>
                                         <div className="chat-right-img">
                                             <img src={selectedUser?.profilePhoto} alt="" />
                                         </div>
@@ -321,6 +321,17 @@ const handlelogout = async () => {
                                                                 ref={messageEndRef}
                                                                 className={`message ${authUser?._id === msg.senderId ? "send" : "recive"}`}
                                                             >
+                                                                {/* Sent / Seen Icon only for sender */}
+                                                                {authUser._id === msg.senderId && (
+                                                                    <div className="message-status">
+                                                                        {msg.isSeen ? (
+                                                                            <span title="Seen">👁️</span>
+                                                                        ) : (
+                                                                            <span title="Sent">✓</span>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+
                                                                 {/* Array of Files */}
                                                                 {Array.isArray(msg.fileurl) && msg.fileurl.length > 0 &&
                                                                     msg.fileurl.map((url, index) => {
@@ -362,9 +373,16 @@ const handlelogout = async () => {
                                                                     )
                                                                 )}
 
+                                                                {/* Message Text */}
                                                                 {msg.message && <p>{msg.message}</p>}
+                                                                {authUser._id === msg.senderId && (
+                                                                    <div className="message-status">
+                                                                        {msg.isSeen ? <span title="Seen">👁️</span> : <span title="Sent">✓</span>}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         );
+
                                                     })
                                             ) : (
                                                 <div className="no-message">

@@ -9,6 +9,13 @@ const messageSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload || [];
     },
+     updateMessageSeenStatus: (state, action) => {
+      const { messageId } = action.payload;
+      const msg = state.messages.find(m => m._id === messageId);
+      if (msg) {
+        msg.isSeen = true;
+      }
+    },
      addNewMessage: (state, action) => {
       state.messages = [...state.messages, action.payload];
     },
@@ -25,5 +32,5 @@ const messageSlice = createSlice({
   },
 });
 
-export const { setMessages,  clearMessagesForUser, addNewMessage } = messageSlice.actions;
+export const { setMessages,  clearMessagesForUser, updateMessageSeenStatus, addNewMessage } = messageSlice.actions;
 export default messageSlice.reducer;
