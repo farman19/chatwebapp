@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import { Server } from "socket.io";
 import http from "http";
-import { MessageModel } from "../models/messageModel.js"; // ✅ सही path हो
+import { Message } from "../models/messagemodle.js"; // ✅ सही path हो
 
 const server = http.createServer(app);
 
@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     console.log(`👁️ Message ${messageId} seen by ${receiverId}`);
 
     try {
-      await MessageModel.findByIdAndUpdate(messageId, { isSeen: true });
+      await Message.findByIdAndUpdate(messageId, { isSeen: true });
 
       const senderSocketId = getReceiverSocketId(senderId);
       if (senderSocketId) {
