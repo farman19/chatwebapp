@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import { Server } from "socket.io";
 import http from "http";
-import { Message } from "../models/messagemodle.js"; // ✅ सही path हो
+import { Message } from "../models/messagemodle.js"; 
 
 const server = http.createServer(app);
 
