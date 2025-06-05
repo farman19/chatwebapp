@@ -21,7 +21,8 @@ import { clearMessagesForUser, setMessages } from '../redux/messageSlice';
 // import { Picker } from 'emoji-mart';
 import { setSocket } from "../redux/socketSlice";
 import { v4 as uuidv4 } from 'uuid';
-import { FaCheck, FaCheckDouble } from "react-icons/fa";
+
+import { BsCheck2All,BsCheck2 } from "react-icons/bs";
 
 
 
@@ -393,9 +394,9 @@ const Chatpage = () => {
                                                                 {authUser._id === msg.senderId && (
                                                                     <div className="message-status">
                                                                         {msg.isSeen ? (
-                                                                            <FaCheckDouble color="blue" title="Seen" />
+                                                                            <BsCheck2All color="blue" title="Seen" />
                                                                         ) : (
-                                                                            <FaCheck title="Sent" />
+                                                                            <BsCheck2 title="Sent" />
                                                                         )}
                                                                     </div>
                                                                 )}
