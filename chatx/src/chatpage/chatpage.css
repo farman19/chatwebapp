@@ -79,72 +79,61 @@
     height: 100%;
     object-fit: cover;
 } */
-.chat-section .chat-header .chat-top .logout-btnbox {
-  width: 120px;
-  height: 40px;
-  /* background-color: #6060e0; */
+
+.my-account-box {
+  padding: 20px 15px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  /* background-color: yellow; */
 }
 
-.chat-section .chat-header .chat-top .logout-btnbox button {
-  width: 100px;
-  height: 100%;
+.my-account-box button{
   
-  background-color: rgb(59, 219, 112);
-  color: #000;
+ background-color: rgb(61, 230, 118);
+
   border: none;
+  padding: 5px 10px;
   outline: none;
-  z-index: 1;
-  padding: 0px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 15px;
-  font-weight: 500;
-    box-shadow: 0px 4px 10px rgb(0, 0, 0);
-   
+  cursor: pointer;
+  text-transform: none;
+  box-shadow: none;
+  
 }
 
-.chat-section .chat-header .chat-top .logout-btnbox button::before {
-  content: '';
-  width: 100%;
-  height: 50px;
-  left: 0;
-  top: 100%;
-  background-color: #7b3d3dde;
-  z-index: -2;
-  position: absolute;
-  margin: 0px;
-  border-top-left-radius: 50px;
-  border-top-right-radius: 50px;
+
+
+.my-account {
   display: flex;
-  justify-content: center;
   align-items: center;
-
-  transition: all 0.3s ease-in;
-
-
-
-
+  gap: 10px;
 }
 
-.chat-section .chat-header .chat-top .logout-btnbox button:hover {
-  transition: all 0.3s ease;
-  color: #fff;
-
-
-
+.my-acc-img-box img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* border: 2px solid #ddd; */
 }
 
-.chat-section .chat-header .chat-top .logout-btnbox button:hover::before {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-  transition: all 0.2s ease;
-  top: 0;
-
-
+.my-acc-info-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+
+.my-acc-info-box .my-h h3 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 500;
+  color: #080707;
+}
+
+.MuiMenu-paper {
+  margin-top: 8px !important;
+}
+
+
 
 .chat-section .chat-header .chat-box {
   width: 100%;
@@ -470,15 +459,15 @@
 }
 
 .chat-section .chat-header .chat-box .chat-right .chat-right-top .del-top-btn button{
-   width: 80px;
-  height: 30px;
+  
   background-color: rgb(61, 230, 118);
+  padding: 3px 4px;
   color: #000;
   border: none;
   outline: none;
   overflow: hidden;
  z-index: 1;
-  border-radius: 15px;
+  border-radius: 5px;
   font-weight: 600;
   font-size: 0.6em;
    box-shadow: 0px 4px 10px rgb(0, 0, 0);
@@ -489,7 +478,7 @@
    
  content: '';
   width: 100%;
-  height: 50px;
+  height: 40px;
   left: 0;
   top: 100%;
   background-color: #7b3d3dde;
@@ -844,13 +833,12 @@
   color: #000000d9;
 }
 
-.chat-section .chat-header .chat-box .chat-right .chat-right-conversation .chat-container .input-area button {
-  width: 50px;
-  height: 35px;
-  padding: 6px 15px;
-  border-radius: 15px;
+.chat-section .chat-header .chat-box .chat-right .chat-right-conversation .chat-container .input-area form button {
+ 
+  padding: 3px 8px;
+  border-radius: 5px;
   border: none;
-  background-color: rgb(59, 219, 112);
+  background-color: rgb(61, 230, 118);
   color: #000;
   border: none;
   outline: none;

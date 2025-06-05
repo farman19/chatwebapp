@@ -58,8 +58,7 @@ form input{
     font-size: 1.1em;
 }
 form button{
-    width: 150px;
-    height: 40px;
+   padding: 4px 12px;
     background-color: rgb(152, 78, 222);
     color: #fff;
     font-size: 1.1em;

@@ -22,7 +22,8 @@ import { clearMessagesForUser, setMessages } from '../redux/messageSlice';
 import { setSocket } from "../redux/socketSlice";
 import { v4 as uuidv4 } from 'uuid';
 
-import { BsCheck2All,BsCheck2 } from "react-icons/bs";
+import { BsCheck2All, BsCheck2 } from "react-icons/bs";
+import {  Menu, MenuItem } from "@mui/material";
 
 
 
@@ -50,7 +51,8 @@ const Chatpage = () => {
     const { socket } = useSelector(store => store.socket);
     const isOnline = selectedUser?._id && onlineUsers?.includes(selectedUser._id); // ✅
 
-    // console.log(isOnline)
+    console.log(authUser?.username)
+    console.log(authUser?.profilePhoto)
     const messages = useSelector(store => store.message.messages) ?? [];
 
 
@@ -217,6 +219,17 @@ const Chatpage = () => {
         }
     }, [filteredMessages, selectedUser, authUser, socket]);
 
+      const [myaccountdrop, setMyAccountDrop] = React.useState(null);
+       const accountopen  = Boolean(myaccountdrop)
+
+
+        const handleMyAccountopen = (event) => {
+      setMyAccountDrop(event.currentTarget);
+  };
+  const handleMyAccountclose = () => {
+      setMyAccountDrop(null);
+  };
+
 
 
 
@@ -230,9 +243,38 @@ const Chatpage = () => {
                             <FaComments style={{ fontSize: '24px', color: '#fff', marginRight: '10px' }} />
                             <h1>chat</h1><span>X</span>
                         </div>
-                        <div className='logout-btnbox'>
-                            <Button onClick={handlelogout}>Logout</Button>
+                        <div className="my-account-box">
+                            <Button
+                                id="basic-button"
+                                aria-controls={accountopen ? 'basic-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={accountopen ? 'true' : undefined}
+                                onClick={handleMyAccountopen}
+                                className="my-account-button"
+                            >
+                                <div className="my-account">
+                                    <div className="my-acc-img-box">
+                                        <img src={authUser?.profilePhoto} alt="profile" />
+                                    </div>
+                                    <div className="my-acc-info-box">
+                                        <div className="my-h">
+                                            <h3>{authUser?.username}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Button>
+
+                            <Menu
+                                id="basic-menu"
+                                anchorEl={myaccountdrop}
+                                open={accountopen}
+                                onClose={handleMyAccountclose}
+                                MenuListProps={{ 'aria-labelledby': 'basic-button' }}
+                            >
+                                <MenuItem onClick={handlelogout}>Logout</MenuItem>
+                            </Menu>
                         </div>
+
                     </div>
                     <div className="chat-box">
                         <div className={`chat-left ${selectedUser?._id ? 'left-sub' : ''} `}>
