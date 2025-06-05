@@ -21,6 +21,8 @@ import { clearMessagesForUser, setMessages } from '../redux/messageSlice';
 // import { Picker } from 'emoji-mart';
 import { setSocket } from "../redux/socketSlice";
 import { v4 as uuidv4 } from 'uuid';
+import { FaCheck, FaCheckDouble } from "react-icons/fa";
+
 
 
 
@@ -60,7 +62,7 @@ const Chatpage = () => {
     });
 
     // Custom hooks for socket/user/messages
-  
+
     useGetOtherUsers();
     useGetMessages();
 
@@ -192,6 +194,28 @@ const Chatpage = () => {
         }
     };
 
+    useEffect(() => {
+        if (!selectedUser || !authUser || !socket || !filteredMessages) return;
+
+        const unseenMsg = [...filteredMessages]
+            .reverse()
+            .find(
+                (msg) =>
+                    msg.senderId === selectedUser._id &&
+                    !msg.isSeen &&
+                    !msg.deletedFor?.includes(authUser._id) &&
+                    !msg.isDeletedForEveryone
+            );
+
+        if (unseenMsg) {
+            socket.emit("message-seen", {
+                messageId: unseenMsg._id,
+                senderId: unseenMsg.senderId,
+                receiverId: authUser._id,
+            });
+        }
+    }, [filteredMessages, selectedUser, authUser, socket]);
+
 
 
 
@@ -321,7 +345,7 @@ const Chatpage = () => {
                                                                 ref={messageEndRef}
                                                                 className={`message ${authUser?._id === msg.senderId ? "send" : "recive"}`}
                                                             >
-                                                               
+
 
                                                                 {/* Array of Files */}
                                                                 {Array.isArray(msg.fileurl) && msg.fileurl.length > 0 &&
@@ -368,9 +392,14 @@ const Chatpage = () => {
                                                                 {msg.message && <p>{msg.message}</p>}
                                                                 {authUser._id === msg.senderId && (
                                                                     <div className="message-status">
-                                                                        {msg.isSeen ? <span title="Seen">👁️</span> : <span title="Sent">✓</span>}
+                                                                        {msg.isSeen ? (
+                                                                            <FaCheckDouble color="blue" title="Seen" />
+                                                                        ) : (
+                                                                            <FaCheck title="Sent" />
+                                                                        )}
                                                                     </div>
                                                                 )}
+
                                                             </div>
                                                         );
 
