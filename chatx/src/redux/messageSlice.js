@@ -9,28 +9,27 @@ const messageSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload || [];
     },
-     updateMessageSeenStatus: (state, action) => {
+    updateMessageSeenStatus: (state, action) => {
       const { messageId } = action.payload;
-      const msg = state.messages.find(m => m._id === messageId);
-      if (msg) {
-        msg.isSeen = true;
-      }
+      state.messages = state.messages.map(msg =>
+        msg._id === messageId ? { ...msg, isSeen: true } : msg
+      );
     },
-     addNewMessage: (state, action) => {
+    addNewMessage: (state, action) => {
       state.messages = [...state.messages, action.payload];
     },
-   
+
     clearMessagesForUser: (state, action) => {
-      const userIdToClear = action.payload; 
+      const userIdToClear = action.payload;
       if (state.messages) {
         state.messages = state.messages.filter(
           (msg) => msg.senderId !== userIdToClear && msg.receiverId !== userIdToClear
         );
       }
     },
-   
+
   },
 });
 
-export const { setMessages,  clearMessagesForUser, updateMessageSeenStatus, addNewMessage } = messageSlice.actions;
+export const { setMessages, clearMessagesForUser, updateMessageSeenStatus, addNewMessage } = messageSlice.actions;
 export default messageSlice.reducer;

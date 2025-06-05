@@ -2,6 +2,7 @@ import express from "express";
 const app = express();
 import { Server } from "socket.io";
 import http from "http";
+import MessageModel from "./chatserver/models/messageModel.js"; // ✅ सही path हो
 
 const server = http.createServer(app);
 
@@ -14,20 +15,38 @@ const io = new Server(server, {
 
 const userSocketMap = {};
 
+// ✅ Get receiver's socket ID
 export const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
+// ✅ Connection handler
 io.on('connection', (socket) => {
   console.log('✅ New user connected:', socket.id);
 
   const userId = socket.handshake.query.userId;
-  if (userId !== undefined) {
+  if (userId) {
     socket.userId = userId;
     userSocketMap[userId] = socket.id;
   }
 
   io.emit('get-online-users', Object.keys(userSocketMap));
+
+  // ✅ Handle seen event
+  socket.on('message-seen', async ({ messageId, senderId, receiverId }) => {
+    console.log(`👁️ Message ${messageId} seen by ${receiverId}`);
+
+    try {
+      await MessageModel.findByIdAndUpdate(messageId, { isSeen: true });
+
+      const senderSocketId = getReceiverSocketId(senderId);
+      if (senderSocketId) {
+        io.to(senderSocketId).emit('message-seen-update', { messageId });
+      }
+    } catch (error) {
+      console.error("❌ Error updating message seen status:", error);
+    }
+  });
 
   socket.on('disconnect', () => {
     console.log('❌ User disconnected:', socket.id);
@@ -38,5 +57,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// ✅ Export app, io, and server
+// ✅ Export
 export { app, io, server };
+

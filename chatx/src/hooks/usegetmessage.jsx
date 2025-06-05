@@ -8,8 +8,22 @@ const useGetMessages = () => {
   const selectedUser = useSelector((store) => store.user.selectedUser);
 
   const fetchMessages = async () => {
-    if (!authUser?._id || !selectedUser?._id) return;
+    if (!socket || !authUser || !selectedUser) return;
 
+  const unseenMsg = [...filteredMessages].reverse().find(
+    msg =>
+      msg.senderId === selectedUser._id &&
+      msg.receiverId === authUser._id &&
+      !msg.isSeen
+  );
+
+  if (unseenMsg) {
+    socket.emit('message-seen', {
+      messageId: unseenMsg._id,
+      senderId: selectedUser._id,
+      receiverId: authUser._id,
+    });
+  }
     try {
       axios.defaults.withCredentials = true;
       const res = await axios.get(
