@@ -321,16 +321,7 @@ const Chatpage = () => {
                                                                 ref={messageEndRef}
                                                                 className={`message ${authUser?._id === msg.senderId ? "send" : "recive"}`}
                                                             >
-                                                                {/* Sent / Seen Icon only for sender */}
-                                                                {authUser._id === msg.senderId && (
-                                                                    <div className="message-status">
-                                                                        {msg.isSeen ? (
-                                                                            <span title="Seen">👁️</span>
-                                                                        ) : (
-                                                                            <span title="Sent">✓</span>
-                                                                        )}
-                                                                    </div>
-                                                                )}
+                                                               
 
                                                                 {/* Array of Files */}
                                                                 {Array.isArray(msg.fileurl) && msg.fileurl.length > 0 &&
