@@ -589,7 +589,7 @@
   margin: auto;
 }
 
-.message-status {
+.message-status svg  {
   font-size: 12px;
   color: #888;
   margin-bottom: 2px;
