@@ -396,7 +396,7 @@ const Chatpage = () => {
                                                                         {msg.isSeen ? (
                                                                             <BsCheck2All color="blue" title="Seen" />
                                                                         ) : (
-                                                                            <BsCheck2 color='darkgray' title="Sent" />
+                                                                            <BsCheck2 color='black' title="Sent" />
                                                                         )}
                                                                     </div>
                                                                 )}

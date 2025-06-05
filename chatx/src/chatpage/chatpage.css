@@ -589,9 +589,9 @@
   margin: auto;
 }
 
-.message-status svg  {
+.message-status {
   font-size: 18px;
-  color: #888;
+  color: #342f2f;
   margin-bottom: 2px;
   text-align: right;
 }
