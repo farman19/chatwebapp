@@ -9,30 +9,28 @@ const useGetMessages = () => {
   const selectedUser = useSelector((store) => store.user.selectedUser);
 
   useEffect(() => {
-    if ( !selectedUser?._id) {
-     dispatch(setMessages([]));
-     
-      return;
-    }
+    if (!authUser?._id || !selectedUser?._id) return;
 
-   
     const fetchMessages = async () => {
       try {
         axios.defaults.withCredentials = true;
         const res = await axios.get(
           `https://chatx-xilj.onrender.com/api/v1/message/${authUser._id}/${selectedUser._id}`
         );
-        // अगर messages array है, तो set करें, नहीं तो खाली array भेजें
-        dispatch(setMessages(Array.isArray(res.data.messages) ? res.data.messages : []));
+
+        const fetchedMessages = Array.isArray(res.data.messages)
+          ? res.data.messages
+          : [];
+
+        dispatch(setMessages(fetchedMessages));
       } catch (error) {
-        console.log("Error fetching messages:", error);
-        // error पर भी messages साफ़ करें
-        dispatch(clearMessagesForUser());
+        console.error("Error fetching messages:", error);
+        dispatch(clearMessagesForUser(selectedUser._id)); // सही तरीके से payload भेजें
       }
     };
 
     fetchMessages();
-  }, [selectedUser?._id, authUser?._id, dispatch]);
+  }, [authUser?._id, selectedUser?._id, dispatch]); // जरूरी dependencies
 };
 
 export default useGetMessages;

@@ -152,9 +152,7 @@ const Chatpage = () => {
             );
 
             toast.success(response.data.message || "Chat deleted successfully");
-             dispatch(setMessages(
-      messages.filter((msg) => msg._id !== messageId)
-    ));
+              dispatch(clearMessagesForUser(selectedUser._id));
         } catch (error) {
             console.error("Error deleting chat:", error);
             toast.error("Failed to delete chat");
