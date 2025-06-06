@@ -197,27 +197,27 @@ const Chatpage = () => {
         }
     };
 
-   useEffect(() => {
-    if (!selectedUser || !authUser || !socket || !filteredMessages) return;
+    useEffect(() => {
+        if (!selectedUser || !authUser || !socket || !filteredMessages) return;
 
-    const unseenMsg = [...filteredMessages]
-        .reverse()
-        .find(
-            (msg) =>
-                msg.senderId === selectedUser._id &&
-                !msg.isSeen &&
-                !msg.deletedFor?.includes(authUser._id) &&
-                !msg.isDeletedForEveryone
-        );
+        const unseenMsg = [...filteredMessages]
+            .reverse()
+            .find(
+                (msg) =>
+                    msg.senderId === selectedUser._id &&
+                    !msg.isSeen &&
+                    !msg.deletedFor?.includes(authUser._id) &&
+                    !msg.isDeletedForEveryone
+            );
 
-    if (unseenMsg) {
-        socket.emit("message-seen", {
-            messageId: unseenMsg._id,
-            senderId: unseenMsg.senderId,
-            receiverId: authUser._id,
-        });
-    }
-}, [filteredMessages, selectedUser, authUser, socket]);
+        if (unseenMsg) {
+            socket.emit("message-seen", {
+                messageId: unseenMsg._id,
+                senderId: unseenMsg.senderId,
+                receiverId: authUser._id,
+            });
+        }
+    }, [filteredMessages, selectedUser, authUser, socket]);
 
     const [myaccountdrop, setMyAccountDrop] = React.useState(null);
     const accountopen = Boolean(myaccountdrop)
@@ -363,7 +363,7 @@ const Chatpage = () => {
                                             filteredMessages && filteredMessages.length > 0 ? (
                                                 filteredMessages
                                                     .filter((msg) => msg.message || (msg.fileurl && msg.fileurl.length > 0))
-                                                    .map((msg) => {
+                                                    .map((msg, index) => {
                                                         const isDeletedForMe = msg.deletedFor?.includes(authUser?._id);
                                                         const isDeletedForEveryone = msg.isDeletedForEveryone;
 
@@ -371,7 +371,7 @@ const Chatpage = () => {
                                                             return (
                                                                 <div
                                                                     key={msg._id}
-                                                                    ref={messageEndRef}
+                                                                    ref={index === filteredMessages.length - 1 ? messageEndRef : null}
                                                                     className={`message ${authUser?._id === msg.senderId ? "send" : "recive"} deleted-message`}
                                                                 >
                                                                     <i>This message was deleted</i>
@@ -384,26 +384,24 @@ const Chatpage = () => {
                                                         return (
                                                             <div
                                                                 key={msg._id}
-                                                                ref={messageEndRef}
+                                                                ref={index === filteredMessages.length - 1 ? messageEndRef : null}
                                                                 className={`message ${authUser?._id === msg.senderId ? "send" : "recive"}`}
                                                             >
-
-
                                                                 {/* Array of Files */}
                                                                 {Array.isArray(msg.fileurl) && msg.fileurl.length > 0 &&
-                                                                    msg.fileurl.map((url, index) => {
+                                                                    msg.fileurl.map((url, fileIndex) => {
                                                                         if (typeof url !== "string") return null;
                                                                         const isImage = url.match(/\.(jpeg|jpg|png|gif|webp)$/i);
                                                                         return isImage ? (
                                                                             <img
-                                                                                key={`${msg._id}-${index}`}
+                                                                                key={`${msg._id}-${fileIndex}`}
                                                                                 src={url}
                                                                                 alt="sent file"
                                                                                 className="sent-image"
                                                                             />
                                                                         ) : (
                                                                             <a
-                                                                                key={`${msg._id}-${index}`}
+                                                                                key={`${msg._id}-${fileIndex}`}
                                                                                 href={url}
                                                                                 target="_blank"
                                                                                 rel="noopener noreferrer"
@@ -432,6 +430,8 @@ const Chatpage = () => {
 
                                                                 {/* Message Text */}
                                                                 {msg.message && <p>{msg.message}</p>}
+
+                                                                {/* ✅ Seen check */}
                                                                 {authUser._id === msg.senderId && (
                                                                     <div className="message-status">
                                                                         {msg.isSeen ? (
@@ -441,11 +441,10 @@ const Chatpage = () => {
                                                                         )}
                                                                     </div>
                                                                 )}
-
                                                             </div>
                                                         );
-
                                                     })
+
                                             ) : (
                                                 <div className="no-message">
                                                     <p>No messages</p>
