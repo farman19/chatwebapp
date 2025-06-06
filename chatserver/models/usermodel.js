@@ -23,6 +23,10 @@ const userModel = new mongoose.Schema({
         type:String,
         enum:["male", "female"],
         required:true
+    },
+     isLoggedIn: {
+        type: Boolean,
+        default: false
     }
 }, {timestamps:true});
 export const User = mongoose.model("User", userModel);
