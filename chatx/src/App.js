@@ -23,28 +23,25 @@ const {socket}=useSelector(store=>store.socket)
  
    const dispatch =useDispatch();
 useEffect(() => {
-  if (authUser) {
-    const socket = io('https://chatx-xilj.onrender.com', {
-        query:{
-          userId:authUser._id
-        },
-        withCredentials: true
+  if (authUser && !socket) {
+    const newSocket = io("https://chatx-xilj.onrender.com", {
+      query: { userId: authUser._id },
+      withCredentials: true,
+    });
 
-    
+    dispatch(setSocket(newSocket));
+
+    newSocket.on("get-online-users", (onlineUsers) => {
+      dispatch(setOnlineUsers(onlineUsers));
     });
-    dispatch(setSocket(socket));
-    socket.on('get-online-users',(onlineUsers)=>{
-      dispatch(setOnlineUsers(onlineUsers))
-    });
-    return ()=> socket.close();
+
+    return () => {
+      newSocket.close();
+      dispatch(setSocket(null));
+    };
   }
-   else{
-    if(socket){
-      socket.close();
-      dispatch(setSocket(null))
-    }
-   }
-} ,[authUser?._id]);
+}, [authUser, socket, dispatch]);
+
     
 
    
