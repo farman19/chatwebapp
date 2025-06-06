@@ -9,12 +9,25 @@ const messageSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload || [];
     },
-    updateMessageSeenStatus: (state, action) => {
-      const { messageId } = action.payload;
-      state.messages = state.messages.map(msg =>
-        msg._id === messageId ? { ...msg, isSeen: true } : msg
-      );
-    },
+   updateMessageSeenStatus: (state, action) => {
+  const { messageId } = action.payload;
+
+  let changed = false;
+
+  const newMessages = state.messages.map(msg => {
+    if (msg._id === messageId && !msg.isSeen) {
+      changed = true;
+      return { ...msg, isSeen: true };
+    }
+    return msg;
+  });
+
+  if (changed) {
+    state.messages = newMessages;
+  }
+  // अगर कोई बदलाव नहीं हुआ, तो state वैसे का वैसा रहेगा और Redux कोई re-render नहीं करेगा
+},
+
     addNewMessage: (state, action) => {
       state.messages = [...state.messages, action.payload];
     },

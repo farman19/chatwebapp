@@ -25,6 +25,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { BsCheck2All, BsCheck2 } from "react-icons/bs";
 import { Menu, MenuItem } from "@mui/material";
 
+// chatpage.jsx के ऊपर imports में
+import { updateMessageSeenStatus } from '../redux/messageSlice'; 
+// path अपने प्रोजेक्ट के हिसाब से adjust करें
 
 
 
@@ -67,7 +70,14 @@ const Chatpage = () => {
     // Custom hooks for socket/user/messages
 
     useGetOtherUsers();
-    useGetMessages();
+  const fetchMessages = useGetMessages();
+
+useEffect(() => {
+  if (selectedUser?._id) {
+    fetchMessages(); // will fetch on change
+  }
+}, [selectedUser, fetchMessages]);
+
 
 
     // Scroll to latest message
@@ -212,18 +222,42 @@ const unseenMsg = useMemo(() => {
         !msg.isDeletedForEveryone
     );
 }, [filteredMessages, selectedUser, authUser]);
-
+const lastSeenMessageId = useRef(null);
+ // 1. Unseen message के लिए emit करने वाला useEffect
 useEffect(() => {
-  // socket और unseenMsg दोनों चाहिए
   if (!socket || !unseenMsg) return;
 
-  // ✅ अब safe emit होगा, loop नहीं बनेगा
+  if (unseenMsg.isSeen || lastSeenMessageId.current === unseenMsg._id) return;
+
+  lastSeenMessageId.current = unseenMsg._id;
+
+  console.log("🔁 EMIT message-seen for:", unseenMsg._id, "| isSeen:", unseenMsg.isSeen);
+
   socket.emit("message-seen", {
     messageId: unseenMsg._id,
     senderId: unseenMsg.senderId,
     receiverId: authUser._id,
   });
 }, [unseenMsg, socket, authUser._id]);
+
+// 2. Socket से 'message-seen-update' event सुनने वाला useEffect
+useEffect(() => {
+  if (!socket) return;
+
+  const handleSeenUpdate = (data) => {
+    dispatch(updateMessageSeenStatus({ messageId: data.messageId }));
+  };
+
+  socket.on("message-seen-update", handleSeenUpdate);
+
+  return () => {
+    socket.off("message-seen-update", handleSeenUpdate);
+  };
+}, [socket, dispatch]);
+
+
+
+
 
 
     const [myaccountdrop, setMyAccountDrop] = React.useState(null);
