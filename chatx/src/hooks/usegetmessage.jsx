@@ -20,8 +20,9 @@ const useGetMessages = () => {
       const fetchedMessages = Array.isArray(res.data.messages)
         ? res.data.messages
         : [];
-
+      console.log("***********=====>",fetchMessages)
       dispatch(setMessages(fetchedMessages));
+
 
       // ✅ Fix 2: unseenMsg अब fetchedMessages से check करो
       const unseenMsg = [...fetchedMessages].reverse().find(

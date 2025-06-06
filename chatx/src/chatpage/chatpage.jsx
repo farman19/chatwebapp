@@ -99,13 +99,16 @@ useEffect(() => {
     }, [allmessage.files]);
 
 
-    const filteredMessages = Array.isArray(messages) && selectedUser && authUser
-        ? messages.filter(
-            (msg) =>
-                (msg.senderId === authUser._id && msg.receiverId === selectedUser._id) ||
-                (msg.senderId === selectedUser._id && msg.receiverId === authUser._id)
-        )
-        : [];
+
+const filteredMessages = useMemo(() => {
+  if (!Array.isArray(messages) || !selectedUser || !authUser) return [];
+
+  return messages.filter(
+    (msg) =>
+      (msg.senderId === authUser._id && msg.receiverId === selectedUser._id) ||
+      (msg.senderId === selectedUser._id && msg.receiverId === authUser._id)
+  );
+}, [messages, selectedUser, authUser]);
 
 
 
