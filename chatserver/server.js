@@ -32,12 +32,12 @@ app.use("/uploads", express.static(path.join(process.cwd(), "filessaveup")));
 
 // Serve React frontend build
 
-const buildPath = path.resolve(__dirname, "client/build");
-app.use(express.static(buildPath));
+// const buildPath = path.resolve(__dirname, "client/build");
+// app.use(express.static(buildPath));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve(buildPath, "index.html"));
-});
+// app.get("/", (req, res) => {
+//   res.sendFile(path.resolve(buildPath, "index.html"));
+// });
 
 // Routes
 app.use("/api/v1/user", userRoute);
