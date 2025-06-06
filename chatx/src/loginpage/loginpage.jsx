@@ -59,6 +59,7 @@ const LoginPage = () => {
             } else {
                 toast.error(error?.response?.data?.message || "Login error");
             }
+            navigate('/loginpage');
         }
     };
 
