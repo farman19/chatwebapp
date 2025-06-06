@@ -24,6 +24,11 @@ export const register = async (req, res) => {
         if (user) {
             return res.status(400).json({ message: "Username already exit try different" });
         }
+
+          const userWithSamePassword = await User.findOne({ password });
+    if (userWithSamePassword) {
+      return res.status(400).json({ message: "Password already exit try different" });
+    }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // profilePhoto
@@ -49,34 +54,43 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { username, password } = req.body;
-        if (!req.body) {
-            return res.status(400).json({ message: "Request body missing" });
-        }
+
         if (!username || !password) {
-            return res.status(400).json({ message: "सभी फ़ील्ड आवश्यक हैं" });
+            return res.status(400).json({ message: "All fields required" });
         }
 
         const user = await User.findOne({ username });
+
         if (!user) {
-            return res.status(400).json({ message: "गलत उपयोगकर्ता नाम या पासवर्ड" });
+            return res.status(400).json({ message: "Username is wrong" });
         }
 
         const isPasswordMatch = await bcrypt.compare(password, user.password);
+
         if (!isPasswordMatch) {
-            return res.status(400).json({ message: "गलत उपयोगकर्ता नाम या पासवर्ड" });
+            return res.status(400).json({ message: "Username or password is wrong" });
         }
+
+        if (user.isLoggedIn) {
+            return res.status(403).json({ message: "User already logged in on another device" });
+        }
+
+        // Mark as logged in
+        user.isLoggedIn = true;
+        await user.save();
 
         const tokenData = { userId: user._id };
         const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
-         console.log("========>",token)
+
+        console.log("========>", token);
 
         return res
             .status(200)
             .cookie("token", token, {
                 httpOnly: true,
-                secure: true,         
-                sameSite: 'None',     
-                maxAge: 86400000      
+                secure: true,
+                sameSite: 'None',
+                maxAge: 86400000
             })
             .json({
                 _id: user._id,
@@ -84,23 +98,43 @@ export const login = async (req, res) => {
                 fullname: user.fullname,
                 profilePhoto: user.profilePhoto
             });
-           
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "सर्वर में त्रुटि हुई" });
+        return res.status(500).json({ message: "Server error occurred" });
     }
 };
 
-export const logout = (req, res) => {
+export const logout = async (req, res) => {
     try {
-        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-            message: "logged out successfully."
-        })
+        const token = req.cookies.token;
+        if (!token) {
+            return res.status(401).json({ message: "User not logged in." });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // Set isLoggedIn to false
+        user.isLoggedIn = false;
+        await user.save();
+
+        return res.status(200).cookie("token", "", {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+            maxAge: 0,
+        }).json({
+            message: "Logged out successfully."
+        });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ message: "Logout failed due to server error." });
     }
-}
+};
 export const getOtherUsers = async (req, res) => {
     try {
         const loggedInUserId = req.id;
