@@ -141,11 +141,8 @@ useEffect(() => {
             const newMessage = response.data.newMessage;
 
             // ✅ Check if messages is an array
-            if (Array.isArray(messages)) {
-                dispatch(setMessages([...messages, newMessage]));
-            } else {
-                dispatch(setMessages([newMessage])); // fallback if messages is not initialized
-            }
+           dispatch(addNewMessage(newMessage));
+
 
             setAllMessage({ message: '', files: [] });
         } catch (error) {
