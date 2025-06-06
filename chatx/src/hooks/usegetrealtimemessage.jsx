@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addNewMessage, updateMessageSeenStatus } from "../redux/messageSlice";
 
@@ -6,30 +6,33 @@ const useGetRealTimeMessage = () => {
   const { socket } = useSelector(store => store.socket);
   const dispatch = useDispatch();
 
+  // 🧠 useCallback से stable reference
+  const handleNewMessage = useCallback((newMessage) => {
+    dispatch(addNewMessage(newMessage));
+  }, [dispatch]);
+
+  const handleSeenUpdate = useCallback(({ messageId }) => {
+    dispatch(updateMessageSeenStatus({ messageId }));
+  }, [dispatch]);
+
   useEffect(() => {
     if (!socket) return;
 
-    // ✅ New Message Listener
-    const handleNewMessage = (newMessage) => {
-      dispatch(addNewMessage(newMessage));
-    };
+    // ❗ पहले remove करो, फिर add करो (double listener रोकने के लिए)
+    socket.off("newMessage", handleNewMessage);
+    socket.off("message-seen-update", handleSeenUpdate);
 
-    // ✅ Message Seen Listener
-    const handleSeenUpdate = ({ messageId }) => {
-      dispatch(updateMessageSeenStatus({ messageId }));
-    };
-
-    // ✅ Add Listeners
     socket.on("newMessage", handleNewMessage);
     socket.on("message-seen-update", handleSeenUpdate);
 
-    // ✅ Clean up listeners on unmount
+    // ✅ Clean up
     return () => {
       socket.off("newMessage", handleNewMessage);
       socket.off("message-seen-update", handleSeenUpdate);
     };
-  }, [socket, dispatch]);
+  }, [socket, handleNewMessage, handleSeenUpdate]);
 };
 
 export default useGetRealTimeMessage;
+
 
