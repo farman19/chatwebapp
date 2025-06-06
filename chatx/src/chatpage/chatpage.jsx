@@ -26,7 +26,7 @@ import { BsCheck2All, BsCheck2 } from "react-icons/bs";
 import { Menu, MenuItem } from "@mui/material";
 
 // chatpage.jsx के ऊपर imports में
-import { updateMessageSeenStatus } from '../redux/messageSlice'; 
+import { updateMessageSeenStatus , addNewMessage} from '../redux/messageSlice'; 
 // path अपने प्रोजेक्ट के हिसाब से adjust करें
 
 
