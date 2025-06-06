@@ -23,7 +23,7 @@ import { setSocket } from "../redux/socketSlice";
 import { v4 as uuidv4 } from 'uuid';
 
 import { BsCheck2All, BsCheck2 } from "react-icons/bs";
-import {  Menu, MenuItem } from "@mui/material";
+import { Menu, MenuItem } from "@mui/material";
 
 
 
@@ -219,16 +219,16 @@ const Chatpage = () => {
         }
     }, [filteredMessages, selectedUser, authUser, socket]);
 
-      const [myaccountdrop, setMyAccountDrop] = React.useState(null);
-       const accountopen  = Boolean(myaccountdrop)
+    const [myaccountdrop, setMyAccountDrop] = React.useState(null);
+    const accountopen = Boolean(myaccountdrop)
 
 
-        const handleMyAccountopen = (event) => {
-      setMyAccountDrop(event.currentTarget);
-  };
-  const handleMyAccountclose = () => {
-      setMyAccountDrop(null);
-  };
+    const handleMyAccountopen = (event) => {
+        setMyAccountDrop(event.currentTarget);
+    };
+    const handleMyAccountclose = () => {
+        setMyAccountDrop(null);
+    };
 
 
 
@@ -240,9 +240,9 @@ const Chatpage = () => {
                 <div className="chat-header">
                     <div className="chat-top">
                         <div className="chat-heading">
-                           <div className='logo-chat'>
-                            <img src='./images/ghost.png' alt=''/>
-                           </div>
+                            <div className='logo-chat'>
+                                <img src='./images/ghost.png' alt='' />
+                            </div>
                             <h1>chat</h1><span>X</span>
                         </div>
                         <div className="my-account-box">
@@ -296,12 +296,12 @@ const Chatpage = () => {
                             </div>
                             <div className="chat-user-name-box">
                                 {
-                                    otherUsers
-                                        ?.filter((user) =>
-                                            user.fullname.toLowerCase().includes(searchTerm.toLowerCase())
+                                    Array.isArray(otherUsers) && otherUsers
+                                        .filter((user) =>
+                                            user?.fullname?.toLowerCase().includes(searchTerm?.toLowerCase())
                                         )
                                         .map((user) => {
-                                            const isOnline = onlineUsers?.includes(user._id);
+                                            const isOnline = Array.isArray(onlineUsers) && onlineUsers.includes(user._id);
 
                                             return (
                                                 <div
@@ -309,21 +309,18 @@ const Chatpage = () => {
                                                     key={user._id}
                                                     className={`chat-conversation-list ${selectedUser?._id === user?._id ? 'color-change' : ''}`}
                                                 >
-                                                    <>
-                                                        <div className="chat-img-box">
-                                                            <div className={isOnline ? "online" : ""}></div>
-                                                            <div className="chat-user-img">
-                                                                <img src={user?.profilePhoto} alt="" />
-                                                            </div>
+                                                    <div className="chat-img-box">
+                                                        <div className={isOnline ? "online" : ""}></div>
+                                                        <div className="chat-user-img">
+                                                            <img src={user?.profilePhoto} alt="profile" />
                                                         </div>
+                                                    </div>
 
-                                                        <div className="chat-user-info-box">
-                                                            <div className="chat-user-name-time">
-                                                                <p>{user?.fullname}</p>
-
-                                                            </div>
+                                                    <div className="chat-user-info-box">
+                                                        <div className="chat-user-name-time">
+                                                            <p>{user?.fullname}</p>
                                                         </div>
-                                                    </>
+                                                    </div>
                                                 </div>
                                             );
                                         })
