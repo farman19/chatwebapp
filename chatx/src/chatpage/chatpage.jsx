@@ -197,27 +197,27 @@ const Chatpage = () => {
         }
     };
 
-    useEffect(() => {
-        if (!selectedUser || !authUser || !socket || !filteredMessages) return;
+   useEffect(() => {
+    if (!selectedUser || !authUser || !socket || !filteredMessages) return;
 
-        const unseenMsg = [...filteredMessages]
-            .reverse()
-            .find(
-                (msg) =>
-                    msg.senderId === selectedUser._id &&
-                    !msg.isSeen &&
-                    !msg.deletedFor?.includes(authUser._id) &&
-                    !msg.isDeletedForEveryone
-            );
+    const unseenMsg = [...filteredMessages]
+        .reverse()
+        .find(
+            (msg) =>
+                msg.senderId === selectedUser._id &&
+                !msg.isSeen &&
+                !msg.deletedFor?.includes(authUser._id) &&
+                !msg.isDeletedForEveryone
+        );
 
-        if (unseenMsg) {
-            socket.emit("message-seen", {
-                messageId: unseenMsg._id,
-                senderId: unseenMsg.senderId,
-                receiverId: authUser._id,
-            });
-        }
-    }, [filteredMessages, selectedUser, authUser, socket]);
+    if (unseenMsg) {
+        socket.emit("message-seen", {
+            messageId: unseenMsg._id,
+            senderId: unseenMsg.senderId,
+            receiverId: authUser._id,
+        });
+    }
+}, [filteredMessages, selectedUser, authUser, socket]);
 
     const [myaccountdrop, setMyAccountDrop] = React.useState(null);
     const accountopen = Boolean(myaccountdrop)

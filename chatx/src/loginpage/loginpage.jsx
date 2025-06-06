@@ -63,18 +63,24 @@ const LoginPage = () => {
         }
     };
 
-    useEffect(() => {
-        if (socket) {
-            socket.on("get-online-users", (users) => {
-                console.log("Online Users received:", users);
-                dispatch(setOnlineUsers(users));
-            });
+   useEffect(() => {
+    const handleOnlineUsers = (users) => {
+        console.log("Online Users received:", users);
+        dispatch(setOnlineUsers(users));
+    };
 
-            return () => {
-                socket.off("get-online-users");
-            };
+    if (socket) {
+        socket.off("get-online-users", handleOnlineUsers); // 🔁 remove old
+        socket.on("get-online-users", handleOnlineUsers);   // ➕ add new
+    }
+
+    return () => {
+        if (socket) {
+            socket.off("get-online-users", handleOnlineUsers);
         }
-    }, [socket, dispatch]);
+    };
+}, [socket, dispatch]);
+
 
 
     return (
