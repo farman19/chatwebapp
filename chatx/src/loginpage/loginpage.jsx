@@ -29,7 +29,6 @@ const LoginPage = () => {
     const socket = useSelector((state) => state.user.socket);
     // console.log("--------", socket)
 
-
     const handleLoginForm = async (e) => {
         e.preventDefault();
 
@@ -51,13 +50,18 @@ const LoginPage = () => {
                 withCredentials: true
             });
 
-            dispatch(setSocket(socket)); 
+            dispatch(setSocket(socket));
 
             navigate('/');
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Login error");
+            if (error.response?.status === 403) {
+                toast.error("User already logged in on another device");
+            } else {
+                toast.error(error?.response?.data?.message || "Login error");
+            }
         }
-    }
+    };
+
     useEffect(() => {
         if (socket) {
             socket.on("get-online-users", (users) => {

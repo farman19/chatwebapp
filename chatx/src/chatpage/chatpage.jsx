@@ -241,7 +241,7 @@ const Chatpage = () => {
                     <div className="chat-top">
                         <div className="chat-heading">
                            <div className='logo-chat'>
-                            <img src='./images/chat.png' alt=''/>
+                            <img src='./images/ghost.png' alt=''/>
                            </div>
                             <h1>chat</h1><span>X</span>
                         </div>
