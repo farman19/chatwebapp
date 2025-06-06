@@ -23,7 +23,7 @@ const userSlice = createSlice({
     },
     setOnlineUsers: (state, action) => {
       state.onlineUsers = action.payload;
-      console.log("Online Users:", state.onlineUsers); 
+      // console.log("Online Users:", state.onlineUsers); 
     },
    
     resetUserState: (state) => {

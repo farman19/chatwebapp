@@ -54,8 +54,8 @@ const Chatpage = () => {
     const { socket } = useSelector(store => store.socket);
     const isOnline = selectedUser?._id && onlineUsers?.includes(selectedUser._id); // ✅
 
-    console.log(authUser?.username)
-    console.log(authUser?.profilePhoto)
+    // console.log(authUser?.username)
+    // console.log(authUser?.profilePhoto)
     const messages = useSelector(store => store.message.messages) ?? [];
 
 
