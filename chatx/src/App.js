@@ -23,23 +23,24 @@ const {socket}=useSelector(store=>store.socket)
  
    const dispatch =useDispatch();
 useEffect(() => {
-    const handleOnlineUsers = (users) => {
-        console.log("Online Users received:", users);
-        dispatch(setOnlineUsers(users));
-    };
+  if (authUser && !socket) {
+    const newSocket = io("https://chatx-xilj.onrender.com", {
+      query: { userId: authUser._id },
+      withCredentials: true,
+    });
 
-    if (socket) {
-        socket.off("get-online-users", handleOnlineUsers); // 🔁 remove old
-        socket.on("get-online-users", handleOnlineUsers);   // ➕ add new
-    }
+    dispatch(setSocket(newSocket));
+
+    newSocket.on("get-online-users", (onlineUsers) => {
+      dispatch(setOnlineUsers(onlineUsers));
+    });
 
     return () => {
-        if (socket) {
-            socket.off("get-online-users", handleOnlineUsers);
-        }
+      newSocket.close();
+      dispatch(setSocket(null));
     };
-}, [socket, dispatch]);
-
+  }
+}, [authUser, socket, dispatch]);
 
     
 

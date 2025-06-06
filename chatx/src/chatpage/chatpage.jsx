@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import './chatpage.css'
 
 import { IoMdSearch } from "react-icons/io";
@@ -197,27 +197,34 @@ const Chatpage = () => {
         }
     };
 
-    useEffect(() => {
-        if (!selectedUser || !authUser || !socket || !filteredMessages) return;
+   
 
-        const unseenMsg = [...filteredMessages]
-            .reverse()
-            .find(
-                (msg) =>
-                    msg.senderId === selectedUser._id &&
-                    !msg.isSeen &&
-                    !msg.deletedFor?.includes(authUser._id) &&
-                    !msg.isDeletedForEveryone
-            );
+const unseenMsg = useMemo(() => {
+  if (!filteredMessages || !selectedUser || !authUser) return null;
 
-        if (unseenMsg) {
-            socket.emit("message-seen", {
-                messageId: unseenMsg._id,
-                senderId: unseenMsg.senderId,
-                receiverId: authUser._id,
-            });
-        }
-    }, [filteredMessages, selectedUser, authUser, socket]);
+  return [...filteredMessages]
+    .reverse()
+    .find(
+      (msg) =>
+        msg.senderId === selectedUser._id &&
+        !msg.isSeen &&
+        !msg.deletedFor?.includes(authUser._id) &&
+        !msg.isDeletedForEveryone
+    );
+}, [filteredMessages, selectedUser, authUser]);
+
+useEffect(() => {
+  // socket और unseenMsg दोनों चाहिए
+  if (!socket || !unseenMsg) return;
+
+  // ✅ अब safe emit होगा, loop नहीं बनेगा
+  socket.emit("message-seen", {
+    messageId: unseenMsg._id,
+    senderId: unseenMsg.senderId,
+    receiverId: authUser._id,
+  });
+}, [unseenMsg, socket, authUser._id]);
+
 
     const [myaccountdrop, setMyAccountDrop] = React.useState(null);
     const accountopen = Boolean(myaccountdrop)
