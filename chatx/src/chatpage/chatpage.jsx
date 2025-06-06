@@ -139,7 +139,7 @@ useEffect(() => {
             );
 
             const newMessage = response.data.newMessage;
-
+            console.log("=======",newMessage)
             // ✅ Check if messages is an array
            dispatch(addNewMessage(newMessage));
 
