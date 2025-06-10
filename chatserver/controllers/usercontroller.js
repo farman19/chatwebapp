@@ -105,6 +105,17 @@ export const login = async (req, res) => {
         return res.status(500).json({ message: "Server error occurred" });
     }
 };
+
+
+export const getOtherUsers = async (req, res)=>{
+    try {
+        const loggedInuserid = req.id;
+        const otherusers = await User.find({_id:{$ne:loggedInuserid}}).select(".password");
+        return res.status(200).json(otherusers)
+    } catch (error) {
+        console.log(error)
+    }
+}
 export const logout = async (req, res) => {
     try {
         const token = req.cookies.token;
