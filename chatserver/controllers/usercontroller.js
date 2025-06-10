@@ -105,7 +105,6 @@ export const login = async (req, res) => {
         return res.status(500).json({ message: "Server error occurred" });
     }
 };
-
 export const logout = async (req, res) => {
     try {
         const token = req.cookies.token;
@@ -119,31 +118,25 @@ export const logout = async (req, res) => {
             return res.status(404).json({ message: "User not found." });
         }
 
-        // Set isLoggedIn to false
+        // ⛔ User को logged out mark करो
         user.isLoggedIn = false;
         await user.save();
 
-        return res.status(200).cookie("token", "", {
+        // ✅ Cookie clear करो
+        res.clearCookie("token", {
             httpOnly: true,
             secure: true,
             sameSite: 'None',
-            maxAge: 0,
-        }).json({
+            domain: ".onrender.com", // ⚠️ Render पर जरूरी है
+        });
+
+        // ✅ Response भेजो
+        return res.status(200).json({
             message: "Logged out successfully."
         });
+
     } catch (error) {
-        console.log(error);
+        console.log("Logout error:", error);
         return res.status(500).json({ message: "Logout failed due to server error." });
     }
 };
-export const getOtherUsers = async (req, res) => {
-    try {
-        const loggedInUserId = req.id;
-        const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
-        // console.log(otherUsers)
-        return res.status(200).json(otherUsers);
-
-    } catch (error) {
-        console.log(error);
-    }
-}
