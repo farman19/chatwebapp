@@ -11,7 +11,9 @@ const useGetOtherUsers = () => {
         const fetchOtherUsers = async () => {
             try {
                 axios.defaults.withCredentials = true;
-                const res = await axios.get(`https://chatx-xilj.onrender.com/api/v1/user`);
+                const res = axios.get("https://chatx-xilj.onrender.com/api/v1/user/getOtherUsers", {
+                    withCredentials: true
+                });
                 console.log("✅ User data fetched:", res.data);
                 dispatch(setOtherUsers(res.data));
             } catch (error) {

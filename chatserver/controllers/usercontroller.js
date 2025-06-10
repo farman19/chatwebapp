@@ -110,7 +110,7 @@ export const login = async (req, res) => {
 export const getOtherUsers = async (req, res)=>{
     try {
         const loggedInuserid = req.id;
-        const otherusers = await User.find({_id:{$ne:loggedInuserid}}).select(".password");
+        const otherusers = await User.find({_id:{$ne:loggedInuserid}}).select("-password");
         return res.status(200).json(otherusers)
     } catch (error) {
         console.log(error)
