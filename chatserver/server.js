@@ -25,6 +25,8 @@ app.use(cookieParser());
 app.use(cors({
   origin: FRONTEND_URL,  // ⬅️ Use it here
   credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 console.log("======",FRONTEND_URL)

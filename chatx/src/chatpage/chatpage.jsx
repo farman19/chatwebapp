@@ -197,7 +197,7 @@ const messages = useMemo(() => {
                 dispatch(setSocket(null));
             }
 
-            await axios.get(`${BASE_URL}/api/v1/user/logout`, {
+            await axios.get(`${BASE_URL}/user/logout`, {
                 withCredentials: true,
             });
 
