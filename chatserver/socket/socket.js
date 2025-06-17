@@ -1,21 +1,33 @@
 import dotenv from 'dotenv';
 dotenv.config();
+
 import express from "express";
-const app = express();
-import { Server } from "socket.io";
 import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
 import { Message } from "../models/messagemodle.js"; 
 
+const app = express();
 const server = http.createServer(app);
-const FRONTEND_URL = process.env.FRONTEND_BASE_URL;
 
+const FRONTEND_URL = process.env.FRONTEND_BASE_URL;
+console.log("✅ FRONTEND CORS origin:", FRONTEND_URL);
+
+// ✅ CORS for Express
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true
+}));
+
+// ✅ CORS for Socket.IO
 const io = new Server(server, {
   cors: {
     origin: FRONTEND_URL,
     credentials: true
-  },
+  }
 });
 
+// 🔌 Socket logic
 const userSocketMap = {};
 
 // ✅ Get receiver's socket ID
@@ -23,7 +35,6 @@ export const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
-// ✅ Connection handler
 io.on('connection', (socket) => {
   console.log('✅ New user connected:', socket.id);
 
@@ -36,12 +47,9 @@ io.on('connection', (socket) => {
   io.emit('get-online-users', Object.keys(userSocketMap));
 
   // ✅ Handle seen event
-  socket.on('message-seen', async ({ messageId, senderId, receiverId }) => {
-    console.log(`👁️ Message ${messageId} seen by ${receiverId}`);
-
+  socket.on('message-seen', async ({ messageId, senderId }) => {
     try {
       await Message.findByIdAndUpdate(messageId, { isSeen: true });
-
       const senderSocketId = getReceiverSocketId(senderId);
       if (senderSocketId) {
         io.to(senderSocketId).emit('message-seen-update', { messageId });
@@ -60,6 +68,4 @@ io.on('connection', (socket) => {
   });
 });
 
-// ✅ Export
 export { app, io, server };
-
