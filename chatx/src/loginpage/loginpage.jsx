@@ -11,7 +11,7 @@ import { setAuthUser, setOnlineUsers } from '../redux/userSlice';
 import io from 'socket.io-client';
 import { setSocket } from '../redux/socketSlice'
 
-
+const BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 
 
@@ -33,17 +33,18 @@ const LoginPage = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('https://chatx-xilj.onrender.com/api/v1/user/login', user, {
+            const response = await axios.post(`${BASE_URL}/api/v1/user/login`, user, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 withCredentials: true
             });
+            // console.log("after login data :", response.data)
 
             dispatch(setAuthUser(response.data));
 
             // ✅ socket initialize करें और userId भेजें
-            const socket = io("https://chatx-xilj.onrender.com", {
+            const socket = io(`${BASE_URL}`, {
                 query: {
                     userId: response.data._id
                 },

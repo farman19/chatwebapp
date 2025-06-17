@@ -13,36 +13,35 @@ import { setSelectedUser } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
 import useGetMessages from '../hooks/usegetmessage';
 // import {selectedUser} from '../redux/userSlice'
-import { FaComments } from 'react-icons/fa';
+
 import { FaArrowLeft } from "react-icons/fa6";
 import { persistor } from "../redux/store";
 import { setAuthUser } from '../redux/userSlice';
 import { clearMessagesForUser, setMessages } from '../redux/messageSlice';
 // import { Picker } from 'emoji-mart';
 import { setSocket } from "../redux/socketSlice";
-import { v4 as uuidv4 } from 'uuid';
+
 
 import { BsCheck2All, BsCheck2 } from "react-icons/bs";
 import { Menu, MenuItem } from "@mui/material";
 
-// chatpage.jsx के ऊपर imports में
-import { updateMessageSeenStatus , addNewMessage} from '../redux/messageSlice'; 
-// path अपने प्रोजेक्ट के हिसाब से adjust करें
+
+import { updateMessageSeenStatus, addNewMessage } from '../redux/messageSlice';
 
 
 
 
 
-import { resetUserState } from "../redux/userSlice"; // adjust path as needed
+
+
 import useGetRealTimeMessage from '../hooks/usegetrealtimemessage';
 // adjust path as needed
-
-
+const BASE_URL = process.env.REACT_APP_API_BASE_URL
+// console.log(BASE_URL)
 
 const Chatpage = () => {
 
-
-
+ 
     const dispatch = useDispatch();
     const navigate = useNavigate();
     useGetRealTimeMessage();
@@ -52,13 +51,30 @@ const Chatpage = () => {
     // Redux state
     const { authUser, selectedUser, onlineUsers, otherUsers } = useSelector(store => store.user);
     const { socket } = useSelector(store => store.socket);
-    const isOnline = selectedUser?._id && onlineUsers?.includes(selectedUser._id); // ✅
+    const { messagesByUser } = useSelector(store => store.message);
+    const [lastValidUserId, setLastValidUserId] = useState(null);
 
-    // console.log(authUser?.username)
-    // console.log(authUser?.profilePhoto)
-    const messages = useSelector(store => store.message.messages) ?? [];
+   useEffect(() => {
+    if (selectedUser && messagesByUser[selectedUser._id]) {
+        setLastValidUserId(selectedUser._id);
+    }
+}, [selectedUser, messagesByUser]);
+
+const messages = useMemo(() => {
+    if (!selectedUser || !messagesByUser) return [];
+
+    if (!messagesByUser[selectedUser._id] && lastValidUserId) {
+        return messagesByUser[lastValidUserId] || [];
+    }
+
+    return messagesByUser[selectedUser._id] || [];
+}, [messagesByUser, selectedUser, lastValidUserId]);
 
 
+
+
+
+    const isOnline = selectedUser?._id && onlineUsers?.includes(selectedUser._id);
 
     // Component state
     const [searchTerm, setSearchTerm] = useState('');
@@ -67,25 +83,18 @@ const Chatpage = () => {
         files: [],
     });
 
-    // Custom hooks for socket/user/messages
-
+    // Custom hooks
     useGetOtherUsers();
-  const fetchMessages = useGetMessages();
+    const fetchMessages = useGetMessages();
 
-useEffect(() => {
-  if (selectedUser?._id) {
-    fetchMessages(); // will fetch on change
-  }
-}, [selectedUser, fetchMessages]);
+    useEffect(() => {
+        if (selectedUser && selectedUser._id) {
+            // console.log("Fetching messages for selected user:", selectedUser._id);
+            fetchMessages(); // It must dispatch(setMessages({ userId, messages }))
+        }
+    }, [selectedUser]);
 
-
-
-    // Scroll to latest message
-    // useEffect(() => {
-    //     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    // }, [messages]);
-
-    // Cleanup object URLs on unmount
+    // Clean up blob URLs on unmount
     useEffect(() => {
         return () => {
             if (Array.isArray(allmessage.files)) {
@@ -98,42 +107,48 @@ useEffect(() => {
         };
     }, [allmessage.files]);
 
+    // No additional filtering needed anymore
+    const filteredMessages = useMemo(() => {
+        if (!Array.isArray(messages)) return [];
+        return messages;
+    }, [messages]);
 
-
-const filteredMessages = useMemo(() => {
-  if (!Array.isArray(messages) || !selectedUser || !authUser) return [];
-
-  return messages.filter(
-    (msg) =>
-      (msg.senderId === authUser._id && msg.receiverId === selectedUser._id) ||
-      (msg.senderId === selectedUser._id && msg.receiverId === authUser._id)
-  );
-}, [messages, selectedUser, authUser]);
-
-
-
+    // Auto scroll
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [filteredMessages]);
-    // Select chat user
-    const selectuserhandle = (user) => {
+
+    // User selection
+    const selectuserhandle = async (user) => {
         dispatch(setSelectedUser(user));
+
+        try {
+            const response = await axios.get(`${BASE_URL}/api/v1/message/${user._id}`, {
+                withCredentials: true,
+            });
+
+            console.log("selected user message again :", response.data.message)
+
+            dispatch(setMessages({ userId: user._id, messages: response.data.messages }));
+        } catch (err) {
+            console.error("❌ Failed to load messages for user", err);
+        }
     };
 
-    // Send message
+
+    // Submit message
     const onsubmithandler = async (e) => {
         e.preventDefault();
 
         const formData = new FormData();
         formData.append("message", allmessage.message);
-
         allmessage.files.forEach((fileWrapper) => {
             formData.append("files", fileWrapper.file);
         });
 
         try {
             const response = await axios.post(
-                `https://chatx-xilj.onrender.com/api/v1/message/send/${selectedUser?._id}`,
+                `${BASE_URL}/api/v1/message/send/${selectedUser?._id}`,
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -142,9 +157,9 @@ const filteredMessages = useMemo(() => {
             );
 
             const newMessage = response.data.newMessage;
-            console.log("=======",newMessage)
-            // ✅ Check if messages is an array
-           dispatch(addNewMessage(newMessage));
+            console.log("New message:", newMessage);
+
+            dispatch(addNewMessage({ message: newMessage, authUserId: authUser._id }));
 
 
             setAllMessage({ message: '', files: [] });
@@ -162,7 +177,7 @@ const filteredMessages = useMemo(() => {
 
         try {
             const response = await axios.delete(
-                `https://chatx-xilj.onrender.com/api/v1/message/chat/${selectedUser._id}`,
+                `${BASE_URL}/api/v1/message/chat/${selectedUser._id}`,
                 { withCredentials: true }
             );
 
@@ -174,9 +189,7 @@ const filteredMessages = useMemo(() => {
         }
     };
 
-    // Logout handler
-    //    import { persistor } from "../redux/store"; // जहां आपने store बनाया है
-
+    // Logout
     const handlelogout = async () => {
         try {
             if (socket) {
@@ -184,22 +197,15 @@ const filteredMessages = useMemo(() => {
                 dispatch(setSocket(null));
             }
 
-            await axios.get("https://chatx-xilj.onrender.com/api/v1/user/logout", {
+            await axios.get(`${BASE_URL}/api/v1/user/logout`, {
                 withCredentials: true,
             });
 
-            // ✅ Redux से authUser हटाओ
             dispatch(setAuthUser(null));
-
-            // ✅ Redux Persist का cache क्लियर करो
             await persistor.purge();
-
-            // ✅ LocalStorage भी manually हटाओ अगर यूज़ हो रहा है
             localStorage.removeItem("persist:root");
 
             toast.success("Logout successful");
-
-            // ✅ अब loginpage पर redirect करो
             navigate("/loginpage");
         } catch (error) {
             console.error("Logout error:", error);
@@ -207,62 +213,55 @@ const filteredMessages = useMemo(() => {
         }
     };
 
-   
+    // Unseen message logic
+    const unseenMsg = useMemo(() => {
+        if (!filteredMessages || !selectedUser || !authUser) return [];
 
-const unseenMsg = useMemo(() => {
-  if (!filteredMessages || !selectedUser || !authUser) return null;
+        return [...filteredMessages]
+            .reverse()
+            .find(
+                (msg) =>
+                    msg.senderId === selectedUser._id &&
+                    !msg.isSeen &&
+                    !msg.deletedFor?.includes(authUser._id) &&
+                    !msg.isDeletedForEveryone
+            );
+    }, [filteredMessages, selectedUser, authUser]);
 
-  return [...filteredMessages]
-    .reverse()
-    .find(
-      (msg) =>
-        msg.senderId === selectedUser._id &&
-        !msg.isSeen &&
-        !msg.deletedFor?.includes(authUser._id) &&
-        !msg.isDeletedForEveryone
-    );
-}, [filteredMessages, selectedUser, authUser]);
-const lastSeenMessageId = useRef(null);
- // 1. Unseen message के लिए emit करने वाला useEffect
-useEffect(() => {
-  if (!socket || !unseenMsg) return;
+    const lastSeenMessageId = useRef(null);
 
-  if (unseenMsg.isSeen || lastSeenMessageId.current === unseenMsg._id) return;
+    useEffect(() => {
+        if (!socket || !unseenMsg) return;
+        if (unseenMsg.isSeen || lastSeenMessageId.current === unseenMsg._id) return;
 
-  lastSeenMessageId.current = unseenMsg._id;
+        lastSeenMessageId.current = unseenMsg._id;
 
-  console.log("🔁 EMIT message-seen for:", unseenMsg._id, "| isSeen:", unseenMsg.isSeen);
+        // console.log("🔁 EMIT message-seen for:", unseenMsg._id, "| isSeen:", unseenMsg.isSeen);
 
-  socket.emit("message-seen", {
-    messageId: unseenMsg._id,
-    senderId: unseenMsg.senderId,
-    receiverId: authUser._id,
-  });
-}, [unseenMsg, socket, authUser._id]);
+        socket.emit("message-seen", {
+            messageId: unseenMsg._id,
+            senderId: unseenMsg.senderId,
+            receiverId: authUser._id,
+        });
+    }, [unseenMsg, socket, authUser._id]);
 
-// 2. Socket से 'message-seen-update' event सुनने वाला useEffect
-useEffect(() => {
-  if (!socket) return;
+    // Listen for seen update
+    useEffect(() => {
+        if (!socket) return;
 
-  const handleSeenUpdate = (data) => {
-    dispatch(updateMessageSeenStatus({ messageId: data.messageId }));
-  };
+        const handleSeenUpdate = (data) => {
+            dispatch(updateMessageSeenStatus({ userId: selectedUser?._id, messageId: data.messageId }));
+        };
 
-  socket.on("message-seen-update", handleSeenUpdate);
+        socket.on("message-seen-update", handleSeenUpdate);
+        return () => {
+            socket.off("message-seen-update", handleSeenUpdate);
+        };
+    }, [socket, dispatch, selectedUser]);
 
-  return () => {
-    socket.off("message-seen-update", handleSeenUpdate);
-  };
-}, [socket, dispatch]);
-
-
-
-
-
-
-    const [myaccountdrop, setMyAccountDrop] = React.useState(null);
-    const accountopen = Boolean(myaccountdrop)
-
+    // Account dropdown handlers
+    const [myaccountdrop, setMyAccountDrop] = useState(null);
+    const accountopen = Boolean(myaccountdrop);
 
     const handleMyAccountopen = (event) => {
         setMyAccountDrop(event.currentTarget);
@@ -270,6 +269,11 @@ useEffect(() => {
     const handleMyAccountclose = () => {
         setMyAccountDrop(null);
     };
+
+    useEffect(() => {
+        // console.log("Redux messages:", messages);
+    }, [messages]);
+
 
 
 
@@ -400,8 +404,8 @@ useEffect(() => {
                             <div className="chat-right-conversation">
                                 <div className="chat-container">
                                     <div className="chat-right-communication">
-                                        {selectedUser ? (
-                                            filteredMessages && filteredMessages.length > 0 ? (
+                                        {selectedUser && messagesByUser && messagesByUser[selectedUser._id] ? (
+                                            filteredMessages.length > 0 ? (
                                                 filteredMessages
                                                     .filter((msg) => msg.message || (msg.fileurl && msg.fileurl.length > 0))
                                                     .map((msg, index) => {
@@ -428,7 +432,7 @@ useEffect(() => {
                                                                 ref={index === filteredMessages.length - 1 ? messageEndRef : null}
                                                                 className={`message ${authUser?._id === msg.senderId ? "send" : "recive"}`}
                                                             >
-                                                                {/* Array of Files */}
+                                                                {/* Multiple Files */}
                                                                 {Array.isArray(msg.fileurl) && msg.fileurl.length > 0 &&
                                                                     msg.fileurl.map((url, fileIndex) => {
                                                                         if (typeof url !== "string") return null;
@@ -453,7 +457,7 @@ useEffect(() => {
                                                                         );
                                                                     })}
 
-                                                                {/* Single fileurl */}
+                                                                {/* Single file fallback */}
                                                                 {!Array.isArray(msg.fileurl) && msg.fileurl && (
                                                                     msg.fileurl.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                                                                         <img src={msg.fileurl} className="sent-image" alt="sent file" />
@@ -469,23 +473,22 @@ useEffect(() => {
                                                                     )
                                                                 )}
 
-                                                                {/* Message Text */}
+                                                                {/* Text Message */}
                                                                 {msg.message && <p>{msg.message}</p>}
 
-                                                                {/* ✅ Seen check */}
+                                                                {/* Seen Status */}
                                                                 {authUser._id === msg.senderId && (
                                                                     <div className="message-status">
                                                                         {msg.isSeen ? (
                                                                             <BsCheck2All color="blue" title="Seen" />
                                                                         ) : (
-                                                                            <BsCheck2 color='black' title="Sent" />
+                                                                            <BsCheck2 color="black" title="Sent" />
                                                                         )}
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         );
                                                     })
-
                                             ) : (
                                                 <div className="no-message">
                                                     <p>No messages</p>
@@ -493,9 +496,11 @@ useEffect(() => {
                                             )
                                         ) : (
                                             <div className="no-message">
-                                                <p>Please select a user to start chatting.</p>
+                                                <p>{selectedUser ? "Loading messages..." : "Please select a user to start chatting."}</p>
                                             </div>
                                         )}
+
+
 
                                     </div>
 

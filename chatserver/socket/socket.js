@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from "express";
 const app = express();
 import { Server } from "socket.io";
@@ -5,10 +7,11 @@ import http from "http";
 import { Message } from "../models/messagemodle.js"; 
 
 const server = http.createServer(app);
+const FRONTEND_URL = process.env.FRONTEND_BASE_URL;
 
 const io = new Server(server, {
   cors: {
-    origin: ['https://chatxfrontend.onrender.com'],
+    origin: FRONTEND_URL,
     credentials: true
   },
 });

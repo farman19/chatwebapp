@@ -3,7 +3,7 @@ import './registerpage.css'
 import { Link, useNavigate, } from "react-router-dom";
 import axios  from 'axios'
 import { toast } from "react-toastify";
-
+const BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 
 const RegisterPage = () => {
@@ -33,7 +33,7 @@ const RegisterPage = () => {
 
      try {
     
-      const response = await axios.post('https://chatx-xilj.onrender.com/api/v1/user/register', user, {
+      const response = await axios.post(`${BASE_URL}/api/v1/user/register`, user, {
 
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import { User } from "../models/usermodel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+const isProduction = process.env.NODE_ENV === 'production';
 
 export const register = async (req, res) => {
     try {
@@ -25,10 +26,10 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: "Username already exit try different" });
         }
 
-          const userWithSamePassword = await User.findOne({ password });
-    if (userWithSamePassword) {
-      return res.status(400).json({ message: "Password already exit try different" });
-    }
+        const userWithSamePassword = await User.findOne({ password });
+        if (userWithSamePassword) {
+            return res.status(400).json({ message: "Password already exit try different" });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // profilePhoto
@@ -71,12 +72,12 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Username or password is wrong" });
         }
 
+        // ❗ Log but allow login
         if (user.isLoggedIn) {
-            console.log({message:"User already logged in on another device"});
-            return res.status(403).json({ message: "User already logged in on another device" });
+            console.log("⚠️ User already logged in on another device, logging in again");
         }
 
-        // Mark as logged in
+        // ✅ Mark as logged in (again)
         user.isLoggedIn = true;
         await user.save();
 
@@ -84,14 +85,15 @@ export const login = async (req, res) => {
         const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
 
         console.log("========>", token);
+        console.log("###### isProduction =", isProduction);
 
         return res
             .status(200)
-            .cookie("token", token, {
+            .cookie("accessToken", token, {
                 httpOnly: true,
-                secure: true,
-                sameSite: 'None',
-                maxAge: 86400000
+                secure: isProduction,
+                sameSite: isProduction ? 'None' : 'Lax',
+                maxAge: 24 * 60 * 60 * 1000 // 1 day
             })
             .json({
                 _id: user._id,
@@ -107,10 +109,10 @@ export const login = async (req, res) => {
 };
 
 
-export const getOtherUsers = async (req, res)=>{
+export const getOtherUsers = async (req, res) => {
     try {
         const loggedInuserid = req.id;
-        const otherusers = await User.find({_id:{$ne:loggedInuserid}}).select("-password");
+        const otherusers = await User.find({ _id: { $ne: loggedInuserid } }).select("-password");
         return res.status(200).json(otherusers)
     } catch (error) {
         console.log(error)
@@ -118,36 +120,41 @@ export const getOtherUsers = async (req, res)=>{
 }
 export const logout = async (req, res) => {
     try {
-        const token = req.cookies.token;
+        const token = req.cookies.accessToken;
+        console.log("logout token:", token);
+
+        // ✅ हमेशा cookie clear करो, चाहे token हो या ना हो
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // ⚠️ env check
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        });
+
+        // 🔁 अगर token नहीं है, तब भी logout को success मानो
         if (!token) {
-            return res.status(401).json({ message: "User not logged in." });
+            return res.status(200).json({ message: "Logged out (no token found)." });
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const user = await User.findById(decoded.userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
+
+        if (user) {
+            user.isLoggedIn = false;
+            await user.save();
         }
 
-        // ⛔ User को logged out mark करो
-        user.isLoggedIn = false;
-        await user.save();
-
-        // ✅ Cookie clear करो
-        res.clearCookie("token", {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'None',
-            domain: ".onrender.com", // ⚠️ Render पर जरूरी है
-        });
-
-        // ✅ Response भेजो
-        return res.status(200).json({
-            message: "Logged out successfully."
-        });
+        return res.status(200).json({ message: "Logged out successfully." });
 
     } catch (error) {
         console.log("Logout error:", error);
+
+        // ✅ फिर भी cookie clear करना अच्छा practice है
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        });
+
         return res.status(500).json({ message: "Logout failed due to server error." });
     }
 };

@@ -16,23 +16,29 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
-
+const FRONTEND_URL = process.env.FRONTEND_BASE_URL;
+console.log(FRONTEND_URL)
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
- origin: ["https://chatxfrontend.onrender.com", "http://localhost:3000"],
-  credentials: true
+  origin: FRONTEND_URL,  // ⬅️ Use it here
+  credentials: true,
 }));
 
+console.log("======",FRONTEND_URL)
+app.get("/check-cookies", (req, res) => {
+  console.log("Cookies from client:", req.cookies); // ⬅️ See this in terminal
+  res.json({ cookies: req.cookies });
+});
 
 // ✅ Serve static files from 'filessaveup' folder
 app.use("/uploads", express.static(path.join(process.cwd(), "filessaveup")));
 
 // Serve React frontend build
 
-// const buildPath = path.resolve(__dirname, "client/build");
+// const buildPath = path.resolve(__dirname, "../chatx/build");
 // app.use(express.static(buildPath));
 
 // app.get("/", (req, res) => {

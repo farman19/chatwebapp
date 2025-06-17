@@ -4,21 +4,23 @@ import { addNewMessage, updateMessageSeenStatus } from "../redux/messageSlice";
 
 const useGetRealTimeMessage = () => {
   const { socket } = useSelector(store => store.socket);
+  const { authUser } = useSelector(store => store.user); // ✅ FIXED: Added this line
   const dispatch = useDispatch();
 
   const handleNewMessage = useCallback((newMessage) => {
-    dispatch(addNewMessage(newMessage));
-  }, [dispatch]);
+    if (!authUser?._id) return;
+    dispatch(addNewMessage({ message: newMessage, authUserId: authUser._id }));
+  }, [dispatch, authUser]);
 
-  const handleSeenUpdate = useCallback(({ messageId }) => {
-    console.log("👁️ Seen update received:", messageId); // Debug log
-    dispatch(updateMessageSeenStatus({ messageId }));
-  }, [dispatch]);
+  const handleSeenUpdate = useCallback(({ messageId, userId }) => {
+    if (!authUser?._id || !userId) return;
+    dispatch(updateMessageSeenStatus({ userId, messageId }));
+  }, [dispatch, authUser]);
 
   useEffect(() => {
     if (!socket) return;
 
-    // Prevent duplicate listeners
+    // Clear existing listeners to prevent duplicates
     socket.off("newMessage", handleNewMessage);
     socket.off("message-seen-update", handleSeenUpdate);
 

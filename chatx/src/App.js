@@ -12,7 +12,7 @@ import { setSocket } from './redux/socketSlice';
 import store from './redux/store';
 import ProtectedRoute from './components/protectedroute/protectroute';
 import GuestRoute from './components/guestroute/guestroute';
-
+const BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 
 function App() {
@@ -22,12 +22,14 @@ const {authUser} = useSelector(store=>store.user)
 const {socket}=useSelector(store=>store.socket)
  
    const dispatch =useDispatch();
-useEffect(() => {
-  if (!authUser || socket) return;
+  
+ useEffect(() => {
+  if (!authUser || socket) return;  
 
-  const newSocket = io("https://chatx-xilj.onrender.com", {
-    query: { userId: authUser._id },
+  const newSocket = io(BASE_URL, {
+    query: { userId: authUser?._id },
     withCredentials: true,
+   
   });
 
   dispatch(setSocket(newSocket));
@@ -36,11 +38,23 @@ useEffect(() => {
     dispatch(setOnlineUsers(onlineUsers));
   });
 
+  newSocket.on('connect', () => {
+    console.log('✅ Socket connected:', newSocket.id);
+  });
+
+  newSocket.on('connect_error', (err) => {
+    console.error('❌ Socket connection error:', err.message);
+  });
+
   return () => {
-    newSocket.close();
+  if (newSocket) {
+    newSocket.disconnect();
     dispatch(setSocket(null));
-  };
-}, [authUser, dispatch]);
+  }
+};
+}, [authUser, dispatch]);  // ✅ socket dependency हटा दो
+
+
 
 
     
