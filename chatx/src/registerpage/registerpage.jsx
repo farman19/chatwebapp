@@ -33,7 +33,7 @@ const RegisterPage = () => {
 
      try {
     
-      const response = await axios.post(`${BASE_URL}/api/v1/user/register`, user, {
+      const response = await axios.post(`${BASE_URL}/user/register`, user, {
 
         headers: {
           'Content-Type': 'application/json',

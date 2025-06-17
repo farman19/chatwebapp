@@ -15,7 +15,7 @@ const useGetMessages = () => {
       axios.defaults.withCredentials = true;
 
       const res = await axios.get(
-        `${BASE_URL}/api/v1/message/${authUser._id}/${selectedUser._id}`
+        `${BASE_URL}/message/${authUser._id}/${selectedUser._id}`
       );
 
       const fetchedMessages = Array.isArray(res.data.messages)
