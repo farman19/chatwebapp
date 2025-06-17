@@ -33,7 +33,7 @@ const LoginPage = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post(`${BASE_URL}/user/login`, user, {
+            const response = await axios.post(`${BASE_URL}/api/v1/user/login`, user, {
                 headers: {
                     'Content-Type': 'application/json'
                 },

@@ -123,7 +123,7 @@ const messages = useMemo(() => {
         dispatch(setSelectedUser(user));
 
         try {
-            const response = await axios.get(`${BASE_URL}/message/${user._id}`, {
+            const response = await axios.get(`${BASE_URL}/api/v1/message/${user._id}`, {
                 withCredentials: true,
             });
 
@@ -148,7 +148,7 @@ const messages = useMemo(() => {
 
         try {
             const response = await axios.post(
-                `${BASE_URL}/message/send/${selectedUser?._id}`,
+                `${BASE_URL}/api/v1/message/send/${selectedUser?._id}`,
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -177,7 +177,7 @@ const messages = useMemo(() => {
 
         try {
             const response = await axios.delete(
-                `${BASE_URL}/message/chat/${selectedUser._id}`,
+                `${BASE_URL}/api/v1/message/chat/${selectedUser._id}`,
                 { withCredentials: true }
             );
 
@@ -197,7 +197,7 @@ const messages = useMemo(() => {
                 dispatch(setSocket(null));
             }
 
-            await axios.get(`${BASE_URL}/user/logout`, {
+            await axios.get(`${BASE_URL}/api/v1/user/logout`, {
                 withCredentials: true,
             });
 
