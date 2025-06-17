@@ -29,7 +29,8 @@ const {socket}=useSelector(store=>store.socket)
   const newSocket = io(BASE_URL, {
     query: { userId: authUser?._id },
     withCredentials: true,
-      reconnectionAttempts: 5,
+      transports: ['websocket'],
+  reconnectionAttempts: 5,
   timeout: 10000,
    
   });
