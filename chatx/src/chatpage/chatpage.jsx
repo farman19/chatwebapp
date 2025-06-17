@@ -54,6 +54,8 @@ const Chatpage = () => {
     const { messagesByUser } = useSelector(store => store.message);
     const [lastValidUserId, setLastValidUserId] = useState(null);
 
+    console.log("authuserid",authUser?._id)
+
    useEffect(() => {
     if (selectedUser && messagesByUser?.[selectedUser._id]) {
         setLastValidUserId(selectedUser._id);
