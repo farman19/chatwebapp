@@ -11,7 +11,7 @@ const useGetOtherUsers = () => {
   useEffect(() => {
     const fetchOtherUsers = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/v1/user/`, {
+        const res = await axios.get(`${BASE_URL}/user/`, {
           withCredentials: true
         });
         // console.log("✅ User data fetched:", res.data);
