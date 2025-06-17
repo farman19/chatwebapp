@@ -16,7 +16,7 @@ export const sendMessage = async (req, res) => {
     const senderId = req.id; 
     const receiverId = req.params.id;
     const message = req.body.message;  
-   const fileUrls = req.files?.map(file => `http://localhost:8070/uploads/${file.filename}`) || [];
+   const fileUrls = req.files?.map(file => `https://chatx-xilj.onrender.com/uploads/${file.filename}`) || [];
 
 
 
