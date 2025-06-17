@@ -33,31 +33,37 @@ const messageSlice = createSlice({
 
     // ✅ Add single message
     addNewMessage: (state, action) => {
-      const { message, authUserId } = action.payload || {};
+  const { message, authUserId } = action.payload || {};
 
-      if (
-        !message ||
-        !authUserId ||
-        !message.senderId ||
-        !message.receiverId
-      ) {
-        console.warn("❌ Invalid payload to addNewMessage", action.payload);
-        return;
-      }
+  if (
+    !message ||
+    !authUserId ||
+    !message.senderId ||
+    !message.receiverId
+  ) {
+    console.warn("❌ Invalid payload to addNewMessage", action.payload);
+    return;
+  }
 
-      const userId =
-        message.senderId === authUserId ? message.receiverId : message.senderId;
+  const userId = message.senderId === authUserId ? message.receiverId : message.senderId;
 
-      if (!state.messagesByUser[userId]) {
-        state.messagesByUser[userId] = [];
-      }
+  // ✅ Ensure messagesByUser exists
+  if (!state.messagesByUser) {
+    state.messagesByUser = {};
+  }
 
-      // Prevent duplicate
-      const alreadyExists = state.messagesByUser[userId].some(msg => msg._id === message._id);
-      if (!alreadyExists) {
-        state.messagesByUser[userId].push(message);
-      }
-    },
+  // ✅ Ensure the array for user exists
+  if (!Array.isArray(state.messagesByUser[userId])) {
+    state.messagesByUser[userId] = [];
+  }
+
+  // ✅ Avoid duplicates
+  const exists = state.messagesByUser[userId].some((msg) => msg._id === message._id);
+  if (!exists) {
+    state.messagesByUser[userId].push(message);
+  }
+},
+
 
     // ✅ Update seen status
     updateMessageSeenStatus: (state, action) => {
