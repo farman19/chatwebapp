@@ -7,8 +7,14 @@ const useGetRealTimeMessage = () => {
   const { authUser } = useSelector((store) => store.user);
   const dispatch = useDispatch();
 
-  const receiverAudioRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(false); // ✅ State for mute
+   const receiverAudioRef = useRef(null);
+  const isMutedRef = useRef(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
 
   useEffect(() => {
     receiverAudioRef.current = new Audio("https://chatxfrontend.onrender.com/ring/recive.mp3");
