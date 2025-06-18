@@ -53,7 +53,9 @@ const Chatpage = () => {
     const navigate = useNavigate();
     // useGetRealTimeMessage();
 
+
     const messageEndRef = useRef(null);
+      const { isMuted, setIsMuted,isMutedRef } = useGetRealTimeMessage();
 
     const sendAudio = new Audio("/ring/sendmsg.mp3");
 
@@ -172,8 +174,11 @@ const Chatpage = () => {
             console.log("New message:", newMessage);
 
             dispatch(addNewMessage({ message: newMessage, authUserId: authUser._id }));
-            sendAudio.currentTime = 0;
-            sendAudio.play();
+            if (!isMutedRef.current) {
+      sendAudio.currentTime = 0;
+      sendAudio.play().catch(() => {});
+    }
+
             setAllMessage({ message: '', files: [] });
         } catch (error) {
             console.error('Message send error:', error);
@@ -296,7 +301,7 @@ const Chatpage = () => {
     };
 
     // handle mute toggle 
-     const { isMuted, setIsMuted } = useGetRealTimeMessage();
+   
      
   const toggleMute = () => {
     setIsMuted(prev => !prev);

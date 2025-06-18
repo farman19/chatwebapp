@@ -90,7 +90,7 @@ const useGetRealTimeMessage = () => {
   }, [socket, handleNewMessage, handleSeenUpdate, isMuted]);
 
   // ✅ Return mute state
-  return { isMuted, setIsMuted };
+  return { isMuted, setIsMuted, isMutedRef };
  
 };
 
