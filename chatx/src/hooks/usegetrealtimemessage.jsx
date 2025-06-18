@@ -11,7 +11,7 @@ const useGetRealTimeMessage = () => {
    const receiverAudioRef = useRef(null);
 
   useEffect(() => {
-    receiverAudioRef.current = new Audio("/ring/recive.mp3");
+    receiverAudioRef.current = new Audio("https://chatxfrontend.onrender.com/ring/recive.mp3");
   }, []);
 
   const handleNewMessage = useCallback((newMessage) => {
