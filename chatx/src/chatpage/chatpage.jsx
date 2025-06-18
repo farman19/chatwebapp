@@ -48,6 +48,8 @@ const Chatpage = () => {
 
     const messageEndRef = useRef(null);
 
+ const sendAudio = new Audio("/ring/sendmsg.mp3");
+
     // Redux state
     const { authUser, selectedUser, onlineUsers, otherUsers } = useSelector(store => store.user);
     const { socket } = useSelector(store => store.socket);
@@ -162,8 +164,8 @@ const messages = useMemo(() => {
             console.log("New message:", newMessage);
 
             dispatch(addNewMessage({ message: newMessage, authUserId: authUser._id }));
-
-
+                sendAudio.currentTime = 0;
+            sendAudio.play();
             setAllMessage({ message: '', files: [] });
         } catch (error) {
             console.error('Message send error:', error);
