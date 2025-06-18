@@ -454,7 +454,7 @@
    color: #fff;
   text-transform: capitalize;
 }
-.chat-section .chat-header .chat-box .chat-right .chat-right-top .del-top-btn{
+.chat-section .chat-header .chat-box .chat-right .chat-right-top .btnmute{
   width: 100px;
   height: 40px;
   /* background-color: yellow; */
@@ -462,61 +462,19 @@
   justify-content: center;
   align-items: center;
 }
-
-.chat-section .chat-header .chat-box .chat-right .chat-right-top .del-top-btn button{
-  
-  background-color: rgb(61, 230, 118);
-  padding: 3px 4px;
-  color: #000;
-  border: none;
+.chat-section .chat-header .chat-box .chat-right .chat-right-top .btnmute #demo-customized-button{
+  min-width: 25px;
+  min-height: 25px;
+  border-radius: 50%;
+ background-color: transparent;
   outline: none;
-  overflow: hidden;
- z-index: 1;
-  border-radius: 5px;
-  font-weight: 600;
-  font-size: 0.6em;
-   box-shadow: 0px 4px 10px rgb(0, 0, 0);
-     padding: 5px;
+  border: none;
+}
+.chat-section .chat-header .chat-box .chat-right .chat-right-top .btnmute button svg{
+  font-size: 1em;
+  color: rgb(61, 230, 118);
 }
 
-.chat-section .chat-header .chat-box .chat-right .chat-right-top .del-top-btn button::before{
-   
- content: '';
-  width: 100%;
-  height: 40px;
-  left: 0;
-  top: 100%;
-  background-color: #7b3d3dde;
-  z-index: -2;
-  position: absolute;
-  margin: 0px;
-  border-top-left-radius: 50px;
-  border-top-right-radius: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  transition: all 0.3s ease-in;
-}
-   
-
-.chat-section .chat-header .chat-box .chat-right .chat-right-top .del-top-btn button:hover {
-  transition: all 0.3s ease;
-  
-  color: #fff;
-
-
-
-}
-
-.chat-section .chat-header .chat-box .chat-right .chat-right-top .del-top-btn button:hover::before {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-  transition: all 0.2s ease;
-  top: 0;
-
-
-}
 
 
 

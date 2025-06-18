@@ -3,7 +3,7 @@ import './chatpage.css'
 
 import { IoMdSearch } from "react-icons/io";
 // import EmojiPicker from "emoji-picker-react";
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import useGetOtherUsers from '../hooks/usergetotheruser';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
@@ -12,7 +12,12 @@ import { useNavigate } from 'react-router-dom';
 import { setSelectedUser } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
 import useGetMessages from '../hooks/usegetmessage';
-// import {selectedUser} from '../redux/userSlice'
+
+
+import { BsThreeDotsVertical } from "react-icons/bs";
+
+
+
 
 import { FaArrowLeft } from "react-icons/fa6";
 import { persistor } from "../redux/store";
@@ -27,6 +32,8 @@ import { Menu, MenuItem } from "@mui/material";
 
 
 import { updateMessageSeenStatus, addNewMessage } from '../redux/messageSlice';
+import { IoVolumeMute } from "react-icons/io5";
+import { GoUnmute } from "react-icons/go";
 
 
 
@@ -41,14 +48,14 @@ const BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 const Chatpage = () => {
 
- 
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     useGetRealTimeMessage();
 
     const messageEndRef = useRef(null);
 
- const sendAudio = new Audio("/ring/sendmsg.mp3");
+    const sendAudio = new Audio("/ring/sendmsg.mp3");
 
 
     // Redux state
@@ -57,23 +64,23 @@ const Chatpage = () => {
     const { messagesByUser } = useSelector(store => store.message);
     const [lastValidUserId, setLastValidUserId] = useState(null);
 
-    console.log("authuserid",authUser?._id)
+    console.log("authuserid", authUser?._id)
 
-   useEffect(() => {
-    if (selectedUser && messagesByUser?.[selectedUser._id]) {
-        setLastValidUserId(selectedUser._id);
-    }
-}, [selectedUser, messagesByUser]);
+    useEffect(() => {
+        if (selectedUser && messagesByUser?.[selectedUser._id]) {
+            setLastValidUserId(selectedUser._id);
+        }
+    }, [selectedUser, messagesByUser]);
 
-const messages = useMemo(() => {
-    if (!selectedUser || !messagesByUser) return [];
+    const messages = useMemo(() => {
+        if (!selectedUser || !messagesByUser) return [];
 
-    if (!messagesByUser[selectedUser._id] && lastValidUserId) {
-        return messagesByUser[lastValidUserId] || [];
-    }
+        if (!messagesByUser[selectedUser._id] && lastValidUserId) {
+            return messagesByUser[lastValidUserId] || [];
+        }
 
-    return messagesByUser[selectedUser._id] || [];
-}, [messagesByUser, selectedUser, lastValidUserId]);
+        return messagesByUser[selectedUser._id] || [];
+    }, [messagesByUser, selectedUser, lastValidUserId]);
 
 
 
@@ -165,7 +172,7 @@ const messages = useMemo(() => {
             console.log("New message:", newMessage);
 
             dispatch(addNewMessage({ message: newMessage, authUserId: authUser._id }));
-                sendAudio.currentTime = 0;
+            sendAudio.currentTime = 0;
             sendAudio.play();
             setAllMessage({ message: '', files: [] });
         } catch (error) {
@@ -274,6 +281,28 @@ const messages = useMemo(() => {
     const handleMyAccountclose = () => {
         setMyAccountDrop(null);
     };
+
+
+    // handlemute delete chat dropdown menu
+    const [anchormute, setAnchorMute] = useState(null);
+    const open = Boolean(anchormute);
+
+    const handleClickmute = (event) => {
+        setAnchorMute(event.currentTarget);
+    };
+
+    const handleClosemute = () => {
+        setAnchorMute(null);
+    };
+
+    // handle mute toggle 
+     const { isMuted, setIsMuted } = useGetRealTimeMessage();
+     
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+    handleClosemute();
+  };
+
 
     useEffect(() => {
         // console.log("Redux messages:", messages);
@@ -399,11 +428,52 @@ const messages = useMemo(() => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className='del-top-btn'>
-                                    {selectedUser?._id && (
-                                        <Button onClick={handleDeleteChat}>Delete Chat</Button>
-                                    )}
+                                <div className='btnmute'>
+
+
+                                    <IconButton
+                                        id="demo-customized-button"
+                                        aria-controls={open ? 'demo-customized-menu' : undefined}
+                                        aria-haspopup="true"
+                                        aria-expanded={open ? 'true' : undefined}
+                                        variant="contained"
+                                        disableElevation
+                                        onClick={handleClickmute}
+
+
+                                    >
+                                        <BsThreeDotsVertical />
+                                    </IconButton>
+
+                                    <Menu
+                                        id="demo-customized-menu"
+                                        anchorEl={anchormute}
+                                        open={open}
+                                        onClose={handleClosemute}
+                                        MenuListProps={{
+                                            'aria-labelledby': 'demo-customized-button',
+                                        }}
+                                    >
+                                        <MenuItem onClick={toggleMute}>
+                                            {isMuted ? (
+                                                <>
+                                                    <GoUnmute style={{ marginRight: "10px" }} /> Unmute Notification
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <IoVolumeMute style={{ marginRight: "10px" }} /> Mute Notification
+                                                </>
+                                            )}
+                                        </MenuItem>
+                                        {selectedUser?._id && (
+                                            <MenuItem onClick={() => { handleDeleteChat(); handleClosemute(); }}>
+                                                Delete Chat
+                                            </MenuItem>
+                                        )}
+
+                                    </Menu>
                                 </div>
+
                             </div>
 
                             <div className="chat-right-conversation">
