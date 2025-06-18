@@ -6,7 +6,7 @@ const useGetRealTimeMessage = () => {
   const { socket } = useSelector(store => store.socket);
   const { authUser } = useSelector(store => store.user); // ✅ FIXED: Added this line
   const dispatch = useDispatch();
-  const receiverAudio = new Audio("/ring/recive.mp3")
+  const receiverAudio = new Audio("/public/ring/recive.mp3")
 
   const handleNewMessage = useCallback((newMessage) => {
     if (!authUser?._id) return;
