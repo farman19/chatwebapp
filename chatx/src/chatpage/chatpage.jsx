@@ -51,7 +51,7 @@ const Chatpage = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    useGetRealTimeMessage();
+    // useGetRealTimeMessage();
 
     const messageEndRef = useRef(null);
 
