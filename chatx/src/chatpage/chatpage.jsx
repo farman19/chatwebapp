@@ -576,7 +576,7 @@ const Chatpage = () => {
                                             )
                                         ) : (
                                             <div className="no-message">
-                                                <p>{selectedUser ? "Loading messages..." : "Please select a user to start chatting."}</p>
+                                                <p>{selectedUser ? "No messages" : "Please select a user to start chatting."}</p>
                                             </div>
                                         )}
 
