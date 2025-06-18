@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback,useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addNewMessage, updateMessageSeenStatus } from "../redux/messageSlice";
 
