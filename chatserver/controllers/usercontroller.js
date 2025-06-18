@@ -73,8 +73,8 @@ export const login = async (req, res) => {
         }
 
         // ❗ Log but allow login
-        if (user.isLoggedIn) {
-            console.log("⚠️ User already logged in on another device, logging in again");
+           if (user.isLoggedIn) {
+            return res.status(403).json({ message: "User already logged in on another device" });
         }
 
         // ✅ Mark as logged in (again)
