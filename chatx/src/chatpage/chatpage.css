@@ -61,7 +61,7 @@
 .chat-section .chat-header .chat-top .chat-heading h1 {
   font-size: 28px;
   font-weight: 700;
- background: linear-gradient(100deg, #5940e6, #467fdb, #41afbd);
+ background: linear-gradient(100deg, #5940e6, #467fdb, #4187bd);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -801,7 +801,7 @@
   padding: 3px 8px;
   border-radius: 5px;
   border: none;
-  background-color: rgb(61, 230, 118);
+  background-color: #3de676;
   color: #000;
   border: none;
   outline: none;
