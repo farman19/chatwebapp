@@ -20,9 +20,35 @@ const useGetRealTimeMessage = () => {
     receiverAudioRef.current = new Audio("https://chatxfrontend.onrender.com/ring/recive.mp3");
   }, []);
 
+  useEffect(() => {
+  const unlockAudio = () => {
+    if (receiverAudioRef.current) {
+      receiverAudioRef.current
+        .play()
+        .then(() => {
+          receiverAudioRef.current.pause();
+          receiverAudioRef.current.currentTime = 0;
+          console.log("🔓 Audio unlocked");
+          document.removeEventListener("click", unlockAudio);
+        })
+        .catch((err) => {
+          console.warn("🔐 Audio unlock failed:", err.message);
+        });
+    }
+  };
+
+  document.addEventListener("click", unlockAudio);
+  return () => {
+    document.removeEventListener("click", unlockAudio);
+  };
+}, []);
+
   const handleNewMessage = useCallback(
     (newMessage) => {
       if (!authUser?._id) return;
+      
+    console.log("📩 नया मैसेज मिला:", newMessage);
+    console.log("🔇 क्या म्यूट है? :", isMutedRef.current);
 
       // ✅ Play sound only if not muted and it's not from self
       if (!isMutedRef.current && newMessage.senderId !== authUser._id && receiverAudioRef.current)
