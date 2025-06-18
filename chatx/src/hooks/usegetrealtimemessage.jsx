@@ -25,7 +25,8 @@ const useGetRealTimeMessage = () => {
       if (!authUser?._id) return;
 
       // ✅ Play sound only if not muted and it's not from self
-      if (!isMuted && newMessage.senderId !== authUser._id && receiverAudioRef.current) {
+      if (!isMutedRef.current && newMessage.senderId !== authUser._id && receiverAudioRef.current)
+ {
         const audio = receiverAudioRef.current;
         audio.currentTime = 0;
         audio
