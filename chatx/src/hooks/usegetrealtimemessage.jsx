@@ -6,14 +6,28 @@ const useGetRealTimeMessage = () => {
   const { socket } = useSelector(store => store.socket);
   const { authUser } = useSelector(store => store.user); // ✅ FIXED: Added this line
   const dispatch = useDispatch();
-  const receiverAudio = new Audio("/public/ring/recive.mp3")
+
+
+   const receiverAudioRef = useRef(null);
+
+  useEffect(() => {
+    receiverAudioRef.current = new Audio("/ring/recive.mp3");
+  }, []);
 
   const handleNewMessage = useCallback((newMessage) => {
     if (!authUser?._id) return;
-     if (newMessage.senderId !== authUser._id) {
-      receiverAudio.currentTime = 0;
-      receiverAudio.play();
-    }
+      if (newMessage.senderId !== authUser._id && receiverAudioRef.current) {
+        const audio = receiverAudioRef.current;
+        audio.currentTime = 0;
+        audio
+          .play()
+          .then(() => {
+            console.log("🔊 Message sound played");
+          })
+          .catch((err) => {
+            console.warn("🔇 Audio blocked:", err.message);
+          });
+      }
     dispatch(addNewMessage({ message: newMessage, authUserId: authUser._id }));
   }, [dispatch, authUser]);
 
