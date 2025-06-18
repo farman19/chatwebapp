@@ -87,10 +87,10 @@ const useGetRealTimeMessage = () => {
       socket.off("newMessage", handleNewMessage);
       socket.off("message-seen-update", handleSeenUpdate);
     };
-  }, [socket, handleNewMessage, handleSeenUpdate]);
+  }, [socket, handleNewMessage, handleSeenUpdate, isMuted]);
 
   // ✅ Return mute state
-  return { isMuted, setIsMuted };
+ 
 };
 
 export default useGetRealTimeMessage;
