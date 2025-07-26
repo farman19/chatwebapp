@@ -4,8 +4,8 @@ import './chatpage.css'
 import { IoMdSearch } from "react-icons/io";
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
-import { Avatar, Button, IconButton } from "@mui/material";
-import useGetOtherUsers from '../hooks/usergetotheruser';
+import { Avatar,  IconButton } from "@mui/material";
+
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -30,7 +30,7 @@ import { MdLogout } from "react-icons/md";
 import { FaArrowLeft } from "react-icons/fa6";
 import { persistor } from "../redux/store";
 import { setAuthUser } from '../redux/userSlice';
-import { clearMessagesForUser, setMessages } from '../redux/messageSlice';
+import { clearMessagesForUser } from '../redux/messageSlice';
 // import { Picker } from 'emoji-mart';
 import { setSocket } from "../redux/socketSlice";
 import ListItemIcon from '@mui/material/ListItemIcon';

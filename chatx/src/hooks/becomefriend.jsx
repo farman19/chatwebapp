@@ -1,5 +1,5 @@
 import axios from "axios";
-import { toast } from "react-toastify";
+
 import { setFriends } from "../redux/friendSlice";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;

@@ -3,7 +3,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Loader from "../loadings";   // अपना spinner / skeleton component
-import { store } from "../../redux/store";
+
 
 const ProtectedRoute = ({ children }) => {
  const {authUser} = useSelector(store=> store.user) 
