@@ -1,107 +1,125 @@
 // import logo from './logo.svg';
-import { createBrowserRouter, RouterProvider,Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import './App.css';
 import ChatPage from "./chatpage/chatpage";
 import LoginPage from './loginpage/loginpage';
 import RegisterPage from './registerpage/registerpage';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import {io} from 'socket.io-client'
+import { io } from 'socket.io-client'
 import { setOnlineUsers } from './redux/userSlice';
 import { setSocket } from './redux/socketSlice';
-import store from './redux/store';
+
 import ProtectedRoute from './components/protectedroute/protectroute';
 import GuestRoute from './components/guestroute/guestroute';
+import NewUserList from './pages/newuserlist/newuserlist';
 const BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 
 function App() {
-  
 
-const {authUser} = useSelector(store=>store.user)
-const {socket}=useSelector(store=>store.socket)
- 
-   const dispatch =useDispatch();
-  
- useEffect(() => {
-  if (!authUser || socket) return;  
+const dispatch = useDispatch();
+  const { authUser } = useSelector(store => store.user)
 
+  // console.log("authUser in App.jsx ===>", authUser);
+  const { socket } = useSelector(store => store.socket)
+/* ---------- App.jsx का useEffect (Final Version) ---------- */
+useEffect(() => {
+  // 1️⃣ अगर user ही नहीं है या socket पहले‑से slice में मौजूद है → कुछ मत करो
+  if (!authUser || socket) return;
+
+  // 2️⃣ पहली‑बार socket बनाओ
   const newSocket = io(BASE_URL, {
-    query: { userId: authUser?._id },
+    auth: { token: localStorage.getItem("accessToken") },
     withCredentials: true,
-      transports: ['websocket'],
-  reconnectionAttempts: 5,
-  timeout: 10000,
-   
+    transports: ["websocket"],
+    reconnectionAttempts: 5,
+    timeout: 10000,
   });
 
-  dispatch(setSocket(newSocket));
+  dispatch(setSocket(newSocket));   // slice में रख दो
 
-  newSocket.on("get-online-users", (onlineUsers) => {
-    dispatch(setOnlineUsers(onlineUsers));
+  /** ---- listeners ---- **/
+  newSocket.on("connect", () => {
+    // console.log("✅ Socket connected:", newSocket.id);
   });
 
-  newSocket.on('connect', () => {
-    console.log('✅ Socket connected:', newSocket.id);
+  newSocket.on("connect_error", (err) => {
+    // console.error("❌ connect_error:", err.message);
+
+    // 3️⃣ token invalid हुआ तो user को logout कर दो
+    if (err.message.includes("Invalid token")) {
+      localStorage.removeItem("accessToken");
+      dispatch(setSocket(null));     // slice साफ
+      // 👉 अपना logout action बुलाइये (example):  dispatch(logout());
+    }
   });
 
-  newSocket.on('connect_error', (err) => {
-    console.error('❌ Socket connection error:', err.message);
+  newSocket.on("get-online-users", (list) => {
+    dispatch(setOnlineUsers(list));
   });
 
+  /** ---- cleanup ---- **/
   return () => {
-  if (newSocket) {
+    // console.log("🛑 Disconnecting socket…");
     newSocket.disconnect();
     dispatch(setSocket(null));
-  }
-};
-}, [authUser, dispatch]);  // ✅ socket dependency हटा दो
+  };
+}, [authUser, dispatch, BASE_URL]);   // ⚠️ socket dependency हटाई गई
+/* --------------------------------------------------------- */
 
 
 
 
-    
 
-   
-// Inside your router config:
-const routes = createBrowserRouter([
-  {
-    path: "/",
-    element: (
+
+  // Inside your router config:
+  const routes = createBrowserRouter([
+    {
+      path: "/",
+      element: (
         <ProtectedRoute>
           <ChatPage />
         </ProtectedRoute>
       ),
-  
-  },
- 
-  {
-    path: "/loginpage",
-    element: (
+
+    },
+    {
+      path: "/all-users",
+      element: (
+        <ProtectedRoute>
+          <NewUserList />
+        </ProtectedRoute>
+      ),
+    },
+
+    {
+      path: "/loginpage",
+      element: (
         <GuestRoute>
           <LoginPage />
         </GuestRoute>
       ),
-  },
-  {
-    path: "/registerpage",
-   element: (
+    },
+    {
+      path: "/registerpage",
+      element: (
         <GuestRoute>
           <RegisterPage />
         </GuestRoute>
       ),
-  },
-   {
+    },
+    {
       path: "*",
       element: <Navigate to="/" replace />,
     },
-]);
+  ]);
 
 
 
   return (
     <div className="App">
-     <RouterProvider router={routes}/>
+      <RouterProvider router={routes} />
     </div>
   );
 }

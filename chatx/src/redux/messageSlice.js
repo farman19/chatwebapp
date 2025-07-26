@@ -1,8 +1,10 @@
+// messageSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  messagesByUser: {},
-};
+   messagesByUser: {},
+    unseenCountByUser: {}, 
+  };
 
 const messageSlice = createSlice({
   name: "message",
@@ -10,80 +12,86 @@ const messageSlice = createSlice({
   reducers: {
     resetMessages: () => initialState,
 
-    // ✅ Completely replace messages for a user
-    setMessages: (state, action) => {
-      const { userId, messages } = action.payload;
-      state.messagesByUser[userId] = messages || [];
+    setMessages: (state, { payload: { userId, messages } }) => {
+      state.messagesByUser[String(userId)] = messages || [];
     },
 
-    // ✅ Add new messages uniquely (doesn't remove old ones)
-    addMultipleMessages: (state, action) => {
-      const { userId, messages } = action.payload;
-      if (!Array.isArray(messages)) return;
+   addMultipleMessages: (state, { payload: { userId, messages } }) => {
+  const key = String(userId);
+  if (!Array.isArray(messages)) return;
 
-      if (!state.messagesByUser[userId]) {
-        state.messagesByUser[userId] = [];
-      }
+  if (!state.messagesByUser[key]) state.messagesByUser[key] = [];
 
-      const existingIds = new Set(state.messagesByUser[userId].map(msg => msg._id));
-      const newUniqueMessages = messages.filter(msg => !existingIds.has(msg._id));
+  const existingIds = new Set(
+    state.messagesByUser[key].map((m) => String(m._id))
+  );
+  const uniqueMessages = messages.filter((m) => !existingIds.has(String(m._id)));
 
-      state.messagesByUser[userId] = [...state.messagesByUser[userId], ...newUniqueMessages];
-    },
+  state.messagesByUser[key].push(...uniqueMessages);
 
-    // ✅ Add single message
-    addNewMessage: (state, action) => {
-  const { message, authUserId } = action.payload || {};
-
-  if (
-    !message ||
-    !authUserId ||
-    !message.senderId ||
-    !message.receiverId
-  ) {
-    console.warn("❌ Invalid payload to addNewMessage", action.payload);
-    return;
-  }
-
-  const userId = message.senderId === authUserId ? message.receiverId : message.senderId;
-
-  // ✅ Ensure messagesByUser exists
-  if (!state.messagesByUser) {
-    state.messagesByUser = {};
-  }
-
-  // ✅ Ensure the array for user exists
-  if (!Array.isArray(state.messagesByUser[userId])) {
-    state.messagesByUser[userId] = [];
-  }
-
-  // ✅ Avoid duplicates
-  const exists = state.messagesByUser[userId].some((msg) => msg._id === message._id);
-  if (!exists) {
-    state.messagesByUser[userId].push(message);
+  // ✅ Unseen count update करें (सिर्फ unSeen वाले messages के लिए)
+  const unseenCount = uniqueMessages.filter((msg) => !msg.isSeen).length;
+  if (unseenCount > 0) {
+    state.unseenCountByUser[key] =
+      (state.unseenCountByUser[key] || 0) + unseenCount;
   }
 },
 
 
-    // ✅ Update seen status
-    updateMessageSeenStatus: (state, action) => {
-      const { messageId } = action.payload;
+   addNewMessage: (state, { payload }) => {
+  const { message, authUserId } = payload || {};
+  if (!message || !authUserId) return;
 
-      for (const userId in state.messagesByUser) {
-        const index = state.messagesByUser[userId].findIndex(
-          (msg) => msg._id === messageId
-        );
-        if (index !== -1) {
-          state.messagesByUser[userId][index].isSeen = true;
-          break;
-        }
-      }
-    },
+  const key =
+    String(message.senderId) === String(authUserId)
+      ? String(message.receiverId)
+      : String(message.senderId);
 
-    // ✅ Clear messages for specific user
-    clearMessagesForUser: (state, action) => {
-      const userId = action.payload;
-      delete state.messagesByUser[userId];
+  if (!state.messagesByUser[key]) state.messagesByUser[key] = [];
+  if (!state.unseenCountByUser) state.unseenCountByUser = {};
+  if (!state.unseenCountByUser[key]) state.unseenCountByUser[key] = 0;
+
+  const exists = state.messagesByUser[key].some(
+    (m) => String(m._id) === String(message._id)
+  );
+
+  if (!exists) {
+    state.messagesByUser[key].push(message);
+
+    if (String(message.senderId) !== String(authUserId)) {
+      state.unseenCountByUser[key] += 1;
+    }
+  }
+},
+
+  markManySeen: (state, { payload: { userId, ids } }) => {
+  const key = String(userId);
+  if (!state.messagesByUser[key]) return;
+
+  const idSet = new Set(ids.map(String));
+  state.messagesByUser[key].forEach((m) => {
+    if (idSet.has(String(m._id))) {
+      m.isSeen = true;
+    }
+  });
+},
+
+  updateMessageSeenStatus: (state, { payload: { userId, messageId, seenTime } }) => {
+  const key = String(userId);
+  if (!state.messagesByUser[key]) state.messagesByUser[key] = [];
+
+  const msg = state.messagesByUser[key].find(
+    (m) => String(m._id) === String(messageId)
+  );
+
+  if (msg) {
+    msg.isSeen = true;
+    if (seenTime) msg.seenTime = seenTime;
+  }
+},
+
+    clearMessagesForUser: (state, { payload: userId }) => {
+      delete state.messagesByUser[String(userId)];
     },
   },
 });
@@ -92,8 +100,9 @@ export const {
   setMessages,
   addMultipleMessages,
   addNewMessage,
-  clearMessagesForUser,
+  markManySeen,
   updateMessageSeenStatus,
+  clearMessagesForUser,
   resetMessages,
 } = messageSlice.actions;
 

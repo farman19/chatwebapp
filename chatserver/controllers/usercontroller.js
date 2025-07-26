@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 const isProduction = process.env.NODE_ENV === 'production';
 
+
 export const register = async (req, res) => {
     try {
         // const data = req.body;
@@ -17,10 +18,14 @@ export const register = async (req, res) => {
         if (!fullname || !username || !password || !confirmPassword || !gender) {
             return res.status(400).json({ message: "All fields are required" });
         }
+
         if (password !== confirmPassword) {
             return res.status(400).json({ message: "Password do not match" });
         }
-
+          if (password.length < 4 || password.length > 8) {
+            return res.status(400).json({ message: "Password must be between 4 and 8 characters" });
+        }
+        
         const user = await User.findOne({ username });
         if (user) {
             return res.status(400).json({ message: "Username already exit try different" });
@@ -33,8 +38,8 @@ export const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // profilePhoto
-        const maleProfilePhoto = `https://avatar.iran.liara.run/public/boy?username=${username}`;
-        const femaleProfilePhoto = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+       const maleProfilePhoto = `https://api.dicebear.com/7.x/adventurer/svg?seed=boy-${username}`;
+const femaleProfilePhoto = `https://api.dicebear.com/7.x/adventurer/svg?seed=girl-${username}`;
 
         await User.create({
             fullname,
@@ -73,7 +78,7 @@ export const login = async (req, res) => {
         }
 
         // ❗ Log but allow login
-           if (user.isLoggedIn) {
+        if (user.isLoggedIn) {
             return res.status(403).json({ message: "User already logged in on another device" });
         }
 
@@ -82,10 +87,10 @@ export const login = async (req, res) => {
         await user.save();
 
         const tokenData = { userId: user._id };
-        const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
+        const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '30d' });
 
-        console.log("========>", token);
-        console.log("###### isProduction =", isProduction);
+        // console.log("========>", token);
+        // console.log("###### isProduction =", isProduction);
 
         return res
             .status(200)
@@ -93,13 +98,16 @@ export const login = async (req, res) => {
                 httpOnly: true,
                 secure: isProduction,
                 sameSite: isProduction ? 'None' : 'Lax',
-                maxAge: 24 * 60 * 60 * 1000 // 1 day
+                domain: "localhost",                  // dev
+                path: "/",
+                maxAge: 30 * 24 * 60 * 60 * 1000
             })
             .json({
                 _id: user._id,
                 username: user.username,
                 fullname: user.fullname,
-                profilePhoto: user.profilePhoto
+                profilePhoto: user.profilePhoto,
+                token: token
             });
 
     } catch (error) {

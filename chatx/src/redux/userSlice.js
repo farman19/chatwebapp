@@ -8,12 +8,13 @@ const userSlice = createSlice({
     otherUsers: null,
     selectedUser: null,
     onlineUsers: null,
-   
+    chatUsers: null,
+
   },
   reducers: {
     setAuthUser: (state, action) => {
       state.authUser = action.payload;
-      // console.log("Auth User:", state.authUser);
+      // console.log("Auth User in userslice====:", state.authUser);
     },
     setOtherUsers: (state, action) => {
       state.otherUsers = action.payload;
@@ -25,13 +26,18 @@ const userSlice = createSlice({
       state.onlineUsers = action.payload;
       // console.log("Online Users:", state.onlineUsers); 
     },
-   
+
+    setChatUsers: (state, action) => {
+      state.chatUsers = action.payload;
+    },
+
     resetUserState: (state) => {
       state.authUser = null;
       state.otherUsers = null;
       state.selectedUser = null;
-      state.onlineUsers = null;
      
+      state.onlineUsers = null;
+
     },
   },
 });
@@ -41,8 +47,9 @@ export const {
   setOtherUsers,
   setSelectedUser,
   setOnlineUsers,
+  setChatUsers, 
   resetUserState,
- 
+
 } = userSlice.actions;
 
 export default userSlice.reducer;

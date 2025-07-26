@@ -5,8 +5,12 @@ import jwt from "jsonwebtoken";
 
 const isAuthenticated = (req, res, next) => {
   try {
-    const token = req.cookies?.accessToken;
-    // console.log("token===:",token)
+    const tokenFromCookie = req.cookies?.accessToken;
+    const tokenFromHeader = req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.split(" ")[1]
+      : null;
+        const token = tokenFromCookie || tokenFromHeader;
+    // console.log("token=== in authenticate==>:",token)
 
     if (!token) {
       return res.status(401).json({ message: "User not authenticated. No token found." });

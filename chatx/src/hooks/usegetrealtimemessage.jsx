@@ -1,6 +1,9 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addNewMessage, updateMessageSeenStatus } from "../redux/messageSlice";
+import { addNewMessage, updateMessageSeenStatus,  markManySeen  } from "../redux/messageSlice";
+import { setChatUsers } from "../redux/userSlice";
+import { store } from "../redux/store";
+
 
 const useGetRealTimeMessage = () => {
   const { socket } = useSelector((store) => store.socket);
@@ -17,7 +20,7 @@ const useGetRealTimeMessage = () => {
   }, [isMuted]);
 
   useEffect(() => {
-    receiverAudioRef.current = new Audio("https://chatxfrontend.onrender.com/ring/recive.mp3");
+    receiverAudioRef.current = new Audio("/ring/recive.wav");
   }, []);
 
   useEffect(() => {
@@ -28,7 +31,7 @@ const useGetRealTimeMessage = () => {
         .then(() => {
           receiverAudioRef.current.pause();
           receiverAudioRef.current.currentTime = 0;
-          console.log("🔓 Audio unlocked");
+          // console.log("🔓 Audio unlocked");
           document.removeEventListener("click", unlockAudio);
         })
         .catch((err) => {
@@ -47,8 +50,8 @@ const useGetRealTimeMessage = () => {
     (newMessage) => {
       if (!authUser?._id) return;
       
-    console.log("📩 नया मैसेज मिला:", newMessage);
-    console.log("🔇 क्या म्यूट है? :", isMutedRef.current);
+    // console.log("📩 नया मैसेज मिला:", newMessage);
+    // console.log("🔇 क्या म्यूट है? :", isMutedRef.current);
 
       // ✅ Play sound only if not muted and it's not from self
       if (!isMutedRef.current && newMessage.senderId !== authUser._id && receiverAudioRef.current)
@@ -62,36 +65,74 @@ const useGetRealTimeMessage = () => {
       }
 
       dispatch(addNewMessage({ message: newMessage, authUserId: authUser._id }));
+      dispatch(setChatUsers(Object.keys(store.getState().message.messagesByUser)));
     },
     [dispatch, authUser, isMuted]
   );
 
-  const handleSeenUpdate = useCallback(
-    ({ messageId, userId }) => {
-      if (!authUser?._id || !userId) return;
-      dispatch(updateMessageSeenStatus({ userId, messageId }));
-    },
-    [dispatch, authUser]
-  );
+  const onSeenUpd = useCallback((data) => {
+  console.log("🟢 message-seen-update:", data);
 
-  useEffect(() => {
-    if (!socket) return;
+  const { messageIds = [], messageId, senderId, receiverId, seenTime } = data;
+  const otherId = senderId === authUser._id ? receiverId : senderId;
 
-    socket.off("newMessage", handleNewMessage);
-    socket.off("message-seen-update", handleSeenUpdate);
+  // ✅ Step 1: Mark all seen
+  dispatch(markManySeen({ userId: String(otherId), ids: messageIds }));
 
-    socket.on("newMessage", handleNewMessage);
-    socket.on("message-seen-update", handleSeenUpdate);
+  // ✅ Step 2: Add seenTime to each message
+  if (messageIds.length) {
+    messageIds.forEach(id => {
+      dispatch(updateMessageSeenStatus({ userId: otherId, messageId: id, seenTime }));
+    });
+  }
+}, [authUser, dispatch]);
 
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-      socket.off("message-seen-update", handleSeenUpdate);
-    };
-  }, [socket, handleNewMessage, handleSeenUpdate, isMuted]);
 
-  // ✅ Return mute state
-  return { isMuted, setIsMuted, isMutedRef };
+ const handleSeenUpdate = useCallback(
+  ({ messageIds, messageId, userId, seenTime }) => {
+    if (!authUser?._id || !userId) return;
+
+      console.log("📥 [handleSeenUpdate] Data received:", {
+      messageIds,
+      messageId,
+      userId,
+      seenTime,
+    });
+
+    if (Array.isArray(messageIds)) {
+      console.log("📥 Seen Update Triggered:", messageIds || messageId);
+
+      messageIds.forEach((id) => {
+        dispatch(updateMessageSeenStatus({ userId, messageId: id, seenTime }));
+      });
+    } else if (messageId) {
+      console.log("🔁 Updating Seen for:", messageId);
+      dispatch(updateMessageSeenStatus({ userId, messageId, seenTime }));
+    }
+  },
+  [dispatch, authUser]
+);
+
+useEffect(() => {
+  if (!socket || !socket.connected || !authUser) return;
+
+  // console.log("🧲 Socket connected:", socket.id);
+
+  const onNewMsg = handleNewMessage;
+
+  // 🔄 यहां ऊपर वाला onSeenUpd यूज़ करें जिसमें seenTime है
+  socket.off("newMessage", onNewMsg).on("newMessage", onNewMsg);
+  socket.off("message-seen-update", onSeenUpd).on("message-seen-update", onSeenUpd);
+
+  return () => {
+    socket.off("newMessage", onNewMsg);
+    socket.off("message-seen-update", onSeenUpd);
+  };
+}, [socket?.id, authUser?._id, handleNewMessage]); // 🔕 isMuted हटाया
+
+ return { isMuted, setIsMuted, isMutedRef };
+}
+
  
-};
 
 export default useGetRealTimeMessage;

@@ -4,9 +4,9 @@ import isAuthenticated from "../middleware/authenticate.js";
 
 const router = express.Router();
 
-router.route("/register").post(register);
-router.route("/login").post(login);
-router.route("/logout").get(logout);
-router.route("/").get(isAuthenticated,getOtherUsers);
+router.post("/register", register);
+router.post("/login", login);
+router.get("/logout", logout);
+router.get("/", isAuthenticated, getOtherUsers);
 
 export default router;

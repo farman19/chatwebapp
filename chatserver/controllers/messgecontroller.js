@@ -16,7 +16,8 @@ export const sendMessage = async (req, res) => {
     const senderId = req.id; 
     const receiverId = req.params.id;
     const message = req.body.message;  
-   const fileUrls = req.files?.map(file => `https://chatx-xilj.onrender.com/uploads/${file.filename}`) || [];
+  //  const fileUrls = req.files?.map(file => `http://localhost:8070/uploads/${file.filename}`) || [];
+     const fileUrls = req.files?.map(file => `https://chatx-xilj.onrender.com/uploads/${file.filename}`) || [];
 
 
 
@@ -48,7 +49,7 @@ export const sendMessage = async (req, res) => {
     }
 
  
-    //  const fileUrls = req.files?.map(file => `https://chatx-xilj.onrender.com/uploads/${file.filename}`) || [];
+   
 
 
     const newMessage = await Message.create({
@@ -65,8 +66,10 @@ export const sendMessage = async (req, res) => {
     }
 
     await Promise.all([gotConversation.save(), newMessage.save()]);
+console.log("📡 Getting socket for receiverId:", receiverId);
 
     const receiverIdsocketId = getReceiverSocketId(receiverId);
+    console.log("📬 Socket ID found:", receiverIdsocketId);
     if(receiverIdsocketId){
       io.to(receiverIdsocketId).emit('newMessage',newMessage)
     }
@@ -80,44 +83,34 @@ export const sendMessage = async (req, res) => {
 
 
 
-
 export const getMessage = async (req, res) => {
   try {
-   const { senderId, receiverId } = req.params;
+    const { senderId, receiverId } = req.params;
 
-    // console.log("📨 Request to get messages between:", senderId, receiverId);
-
-    // Validate receiverId and senderId
-    if (!receiverId || !mongoose.Types.ObjectId.isValid(receiverId)) {
-      return res.status(400).json({ error: "Invalid or missing receiver ID." });
+    // 1️⃣ Validate + cast ObjectId
+    if (!mongoose.Types.ObjectId.isValid(senderId) ||
+        !mongoose.Types.ObjectId.isValid(receiverId)) {
+      return res.status(400).json({ error: "Invalid sender or receiver ID." });
     }
 
-    if (!senderId || !mongoose.Types.ObjectId.isValid(senderId)) {
-      return res.status(400).json({ error: "Invalid or missing sender ID." });
-    }
+    const sid = new mongoose.Types.ObjectId(senderId);
+    const rid = new mongoose.Types.ObjectId(receiverId);
 
- 
-    const conversation = await Conversation.findOne({
-      participants:{
-        $all: [
-          senderId,
-          receiverId,
-          
-
-        ],
-      },
+    // 2️⃣ Conversation खोजो
+    let conversation = await Conversation.findOne({
+      participants: { $all: [sid, rid] },
     }).populate("messages");
 
-   
+    // 3️⃣ अगर नहीं मिला तो भी 200 + empty array
     if (!conversation) {
-      return res.status(404).json({ error: "Conversation not found." });
+      // 👉 optional: auto‑create empty conversation
+      // conversation = await Conversation.create({ participants: [sid, rid], messages: [] });
+
+      return res.status(200).json({ messages: [] });
     }
 
-    // console.log("🟢 Fetched conversation:", conversation);
-
-   
-    return res.status(200).json( conversation?.messages );
-
+    // 4️⃣ मिला तो messages भेज दो
+    return res.status(200).json({ messages: conversation.messages || [] });
   } catch (error) {
     console.error("🔴 Error in getMessage:", error);
     return res.status(500).json({ error: "Internal server error." });
@@ -129,16 +122,88 @@ export const deleteChatWithUser = async (req, res) => {
   const otherUserId = req.params.userId;
 
   try {
-    await Message.deleteMany({
+    const deleted = await Message.deleteMany({
       $or: [
-        { senderId: currentUserId, receiverId: otherUserId },
-        { senderId: otherUserId, receiverId: currentUserId }
-      ]
+        {
+          senderId: new mongoose.Types.ObjectId(currentUserId),
+          receiverId: new mongoose.Types.ObjectId(otherUserId),
+        },
+        {
+          senderId: new mongoose.Types.ObjectId(otherUserId),
+          receiverId: new mongoose.Types.ObjectId(currentUserId),
+        },
+      ],
     });
 
-    res.status(200).json({ message: 'Chat deleted successfully' });
+    console.log("Deleted Count:", deleted.deletedCount);
+    res.status(200).json({ message: "Chat deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to delete chat' });
+    console.error("Deletion error:", err);
+    res.status(500).json({ message: "Failed to delete chat" });
+  }
+};
+export const markMessagesAsSeen = async (req, res) => {
+  try {
+    const { senderId, receiverId, messageIds } = req.body;
+
+    if (!senderId || !receiverId || !Array.isArray(messageIds)) {
+      return res.status(400).json({ error: "Invalid request" });
+    }
+
+    const now = new Date(); // 📅 Current timestamp
+
+    const result = await Message.updateMany(
+      {
+        _id: { $in: messageIds },
+        senderId,
+        receiverId,
+        isSeen: false,
+      },
+      {
+        $set: {
+          isSeen: true,
+          seenTime: now // ✅ Add this line
+        }
+      }
+    );
+
+    console.log("📦 DB update result:", result);
+
+    const senderSocketId = getReceiverSocketId(senderId);
+    console.log("📡 Sender Socket ID:", senderSocketId);
+
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("message-seen-update", {
+        userId: receiverId,           // Who saw the messages
+        messageIds,
+        seenTime: now.toISOString()   // ⏱️ Optional: pass timestamp to client
+      });
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("❌ Error marking messages as seen:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const getUnseenMessagesForUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    const unseenMessages = await Message.find({
+      receiverId: userId,
+      isSeen: false
+    }).sort({ createdAt: 1 }); // 🔽 पुराना पहले
+
+    return res.status(200).json({ messages: unseenMessages });
+  } catch (error) {
+    console.error("❌ Error fetching unseen messages:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 

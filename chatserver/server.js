@@ -1,14 +1,17 @@
-// server.js (या index.js जो main file हो)
+
 import express from 'express';
 import dotenv from "dotenv";
 import connectDB from "./dbconfig/dbmongo.js";
 import userRoute from "./routes/userroutes.js";
 import messageRoute from "./routes/messageroutes.js";
+import friendRoutes from"./routes/friendsroutes.js";
+
+
 import cors from "cors";
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { app, server, io, getReceiverSocketId } from "./socket/socket.js";
- // app defined via socket.js
+
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,12 +33,12 @@ app.use(cors({
 }));
 
 console.log("======",FRONTEND_URL)
-app.get("/check-cookies", (req, res) => {
-  console.log("Cookies from client:", req.cookies); // ⬅️ See this in terminal
-  res.json({ cookies: req.cookies });
-});
+// app.get("/check-cookies", (req, res) => {
+//   console.log("Cookies from client:", req.cookies); 
+//   res.json({ cookies: req.cookies });
+// });
 
-// ✅ Serve static files from 'filessaveup' folder
+
 app.use("/uploads", express.static(path.join(process.cwd(), "filessaveup")));
 
 // Serve React frontend build
@@ -50,6 +53,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "filessaveup")));
 // Routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/message", messageRoute);
+app.use('/api/v1/friend', friendRoutes);
 
 // Start server
 server.listen(PORT, () => {
