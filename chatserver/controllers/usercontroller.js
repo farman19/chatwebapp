@@ -129,7 +129,7 @@ export const getOtherUsers = async (req, res) => {
 export const logout = async (req, res) => {
     try {
         const token = req.cookies.accessToken;
-        console.log("logout token:", token);
+        // console.log("logout token:", token);
 
         // ✅ हमेशा cookie clear करो, चाहे token हो या ना हो
         res.clearCookie("accessToken", {
