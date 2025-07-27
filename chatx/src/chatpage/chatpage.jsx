@@ -2,16 +2,16 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import './chatpage.css'
 
 import { IoMdSearch } from "react-icons/io";
-import Picker from '@emoji-mart/react';
-import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react'
+import Edata from '@emoji-mart/data';
 import { Avatar,  IconButton } from "@mui/material";
 
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { setSelectedUser, setChatUsers } from '../redux/userSlice';
-import { useDispatch } from 'react-redux';
+
 import useGetMessages from '../hooks/usegetmessage';
 import { MdGroups } from "react-icons/md";
 import { IoMenu } from "react-icons/io5";
@@ -956,7 +956,7 @@ const Chatpage = () => {
                                                                     </IconButton>
                                                                 </div>
 
-                                                                <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+                                                                <Picker data={Edata} onEmojiSelect={handleEmojiSelect} />
                                                             </div>
                                                         )}
 

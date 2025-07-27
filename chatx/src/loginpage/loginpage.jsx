@@ -4,9 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch ,useSelector} from "react-redux";
 
-import { useSelector } from 'react-redux';
+
 import { setAuthUser, setOnlineUsers } from '../redux/userSlice';
 import { FaEyeSlash } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";

@@ -23,12 +23,12 @@ const dispatch = useDispatch();
 
   // console.log("authUser in App.jsx ===>", authUser);
   const { socket } = useSelector(store => store.socket)
-/* ---------- App.jsx का useEffect (Final Version) ---------- */
+
 useEffect(() => {
-  // 1️⃣ अगर user ही नहीं है या socket पहले‑से slice में मौजूद है → कुछ मत करो
+  
   if (!authUser || socket) return;
 
-  // 2️⃣ पहली‑बार socket बनाओ
+
   const newSocket = io(BASE_URL, {
     auth: { token: localStorage.getItem("accessToken") },
     withCredentials: true,

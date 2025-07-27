@@ -823,7 +823,7 @@ color: #302929e4;
 .chat-section .chat-header .chat-box .chat-right .chat-right-conversation .chat-container .chat-right-communication .send {
   align-self: flex-end;
   /* background-color: #f1e6ca; */
-  background: linear-gradient(#f4f1f9);
+  background: linear-gradient(#ffffff);
 
   text-align: right;
   margin-left: auto;
@@ -879,7 +879,7 @@ cursor: pointer;
 
 .chat-section .chat-header .chat-box .chat-right .chat-right-conversation .chat-container .chat-right-communication .recive {
  
-  background-color: #9061f6;
+  background-color: #8355e7;
  
   margin-right: auto;
   /* Push to left */
