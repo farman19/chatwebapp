@@ -2,11 +2,10 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import './chatpage.css'
 
 import { IoMdSearch } from "react-icons/io";
-import Picker from '@emoji-mart/react'
-import Edata from '@emoji-mart/data';
-import { Avatar,  IconButton } from "@mui/material";
 
-import { useSelector,useDispatch } from 'react-redux';
+import { Avatar, IconButton } from "@mui/material";
+import EmojiPicker from "emoji-picker-react";
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -118,12 +117,13 @@ const Chatpage = () => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     // Emoji select handler
-    const handleEmojiSelect = (emoji) => {
-        setAllMessage(prev => ({
+    const handleEmojiSelect = (emojiData) => {
+        setAllMessage((prev) => ({
             ...prev,
-            message: prev.message + emoji.native
+            message: prev.message + emojiData.emoji,
         }));
     };
+
 
 
 
@@ -920,58 +920,58 @@ const Chatpage = () => {
                                                         {/* Emoji Button */}
                                                         <span
                                                             className="emoji-icon"
-                                                            style={{ cursor: 'pointer', marginLeft: '8px' }}
-                                                            onClick={() => setShowEmojiPicker(prev => !prev)}
+                                                            style={{ cursor: "pointer", marginLeft: "8px" }}
+                                                            onClick={() => setShowEmojiPicker((prev) => !prev)}
                                                         >
                                                             😄
                                                         </span>
 
                                                         {/* Emoji Picker */}
                                                         {showEmojiPicker && (
-                                                            <div style={{
-                                                                position: 'absolute',
-                                                                bottom: '60px',
-                                                                left: '0',
-                                                                zIndex: 999,
-                                                                backgroundColor: 'white',
-                                                                border: '1px solid #ccc',
-                                                                borderRadius: '8px',
-                                                                padding: '4px',
-                                                            }}>
-                                                                {/* ❌ Black Close Button */}
-                                                                <div style={{ textAlign: 'right' }}>
+                                                            <div
+                                                                style={{
+                                                                    position: "absolute",
+                                                                    bottom: "60px",
+                                                                    left: "0",
+                                                                    zIndex: 999,
+                                                                    backgroundColor: "white",
+                                                                    border: "1px solid #ccc",
+                                                                    borderRadius: "8px",
+                                                                    padding: "4px",
+                                                                }}
+                                                            >
+                                                                <div style={{ textAlign: "right" }}>
                                                                     <IconButton
                                                                         style={{
-                                                                            border: 'none',
-                                                                            background: 'transparent',
-                                                                            fontSize: '16px',
-                                                                            color: 'black', // 🔥 Black color added here
-                                                                            cursor: 'pointer',
-                                                                            marginBottom: '5px'
+                                                                            border: "none",
+                                                                            background: "transparent",
+                                                                            fontSize: "16px",
+                                                                            color: "black",
+                                                                            cursor: "pointer",
+                                                                            marginBottom: "5px",
                                                                         }}
                                                                         onClick={() => setShowEmojiPicker(false)}
-
                                                                     >
                                                                         <IoCloseSharp />
                                                                     </IconButton>
                                                                 </div>
-
-                                                                <Picker data={Edata} onEmojiSelect={handleEmojiSelect} />
+                                                                <EmojiPicker onEmojiClick={handleEmojiSelect} />
                                                             </div>
                                                         )}
 
-
-
+                                                        {/* Hidden File Upload */}
                                                         <input
                                                             id="file-upload"
                                                             type="file"
                                                             multiple
                                                             onChange={(e) => {
-                                                                const selectedFiles = Array.from(e.target.files).map(file => {
+                                                                const selectedFiles = Array.from(e.target.files).map((file) => {
                                                                     const timestamp = Date.now();
-                                                                    const ext = file.name.substring(file.name.lastIndexOf('.'));
-                                                                    const uniqueName = `${file.name.split('.')[0]}-${timestamp}${ext}`;
-                                                                    const renamedFile = new File([file], uniqueName, { type: file.type });
+                                                                    const ext = file.name.substring(file.name.lastIndexOf("."));
+                                                                    const uniqueName = `${file.name.split(".")[0]}-${timestamp}${ext}`;
+                                                                    const renamedFile = new File([file], uniqueName, {
+                                                                        type: file.type,
+                                                                    });
 
                                                                     return {
                                                                         file: renamedFile,
@@ -983,9 +983,10 @@ const Chatpage = () => {
 
                                                                 setAllMessage({ ...allmessage, files: selectedFiles });
                                                             }}
-                                                            style={{ display: 'none' }}
+                                                            style={{ display: "none" }}
                                                         />
 
+                                                        {/* File Previews */}
                                                         {Array.isArray(allmessage.files) && allmessage.files.length > 0 && (
                                                             <div className="selected-file-list">
                                                                 {allmessage.files.map((file, index) => {
@@ -994,13 +995,22 @@ const Chatpage = () => {
                                                                         <div key={index} className="selected-file-preview">
                                                                             {isImage ? (
                                                                                 <div className="image-preview-container">
-                                                                                    <img src={file.previewURL} alt="preview" className="image-preview" />
+                                                                                    <img
+                                                                                        src={file.previewURL}
+                                                                                        alt="preview"
+                                                                                        className="image-preview"
+                                                                                    />
                                                                                     <span
                                                                                         className="remove-image-btn"
                                                                                         title="Remove file"
                                                                                         onClick={() => {
-                                                                                            const updatedFiles = allmessage.files.filter((_, i) => i !== index);
-                                                                                            setAllMessage({ ...allmessage, files: updatedFiles });
+                                                                                            const updatedFiles = allmessage.files.filter(
+                                                                                                (_, i) => i !== index
+                                                                                            );
+                                                                                            setAllMessage({
+                                                                                                ...allmessage,
+                                                                                                files: updatedFiles,
+                                                                                            });
                                                                                             URL.revokeObjectURL(file.previewURL);
                                                                                         }}
                                                                                     >
@@ -1013,8 +1023,13 @@ const Chatpage = () => {
                                                                                     <span
                                                                                         className="remove-file-btn"
                                                                                         onClick={() => {
-                                                                                            const updatedFiles = allmessage.files.filter((_, i) => i !== index);
-                                                                                            setAllMessage({ ...allmessage, files: updatedFiles });
+                                                                                            const updatedFiles = allmessage.files.filter(
+                                                                                                (_, i) => i !== index
+                                                                                            );
+                                                                                            setAllMessage({
+                                                                                                ...allmessage,
+                                                                                                files: updatedFiles,
+                                                                                            });
                                                                                             URL.revokeObjectURL(file.previewURL);
                                                                                         }}
                                                                                     >
@@ -1028,17 +1043,21 @@ const Chatpage = () => {
                                                             </div>
                                                         )}
 
+                                                        {/* Text Input */}
                                                         <input
                                                             className="text-input"
                                                             value={allmessage.message}
-                                                            onChange={(e) => setAllMessage({ ...allmessage, message: e.target.value })}
+                                                            onChange={(e) =>
+                                                                setAllMessage({ ...allmessage, message: e.target.value })
+                                                            }
                                                             placeholder="Type your message..."
                                                         />
                                                     </div>
-                                                    <IconButton type='submit'>
+
+                                                    {/* Submit Button */}
+                                                    <IconButton type="submit">
                                                         <IoMdSend />
                                                     </IconButton>
-
                                                 </form>
                                             </div>
                                         </div>
