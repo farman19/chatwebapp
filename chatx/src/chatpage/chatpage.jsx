@@ -4,7 +4,7 @@ import './chatpage.css'
 import { IoMdSearch } from "react-icons/io";
 
 import { Avatar, IconButton } from "@mui/material";
-import EmojiPicker from "emoji-picker-react";
+
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -30,7 +30,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { persistor } from "../redux/store";
 import { setAuthUser } from '../redux/userSlice';
 import { clearMessagesForUser } from '../redux/messageSlice';
-// import { Picker } from 'emoji-mart';
+
 import { setSocket } from "../redux/socketSlice";
 import ListItemIcon from '@mui/material/ListItemIcon';
 
@@ -113,16 +113,16 @@ const Chatpage = () => {
 
 
 
-    // emoji
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    // // emoji
+    // const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-    // Emoji select handler
-    const handleEmojiSelect = (emojiData) => {
-        setAllMessage((prev) => ({
-            ...prev,
-            message: prev.message + emojiData.emoji,
-        }));
-    };
+    // // Emoji select handler
+    // const handleEmojiSelect = (emojiData) => {
+    //     setAllMessage((prev) => ({
+    //         ...prev,
+    //         message: prev.message + emojiData.emoji,
+    //     }));
+    // };
 
 
 
@@ -917,48 +917,6 @@ const Chatpage = () => {
                                                     <div className="input-wrapper" style={{ position: "relative" }}>
                                                         <label htmlFor="file-upload" className="file-icon">📎</label>
 
-                                                        {/* Emoji Button */}
-                                                        <span
-                                                            className="emoji-icon"
-                                                            style={{ cursor: "pointer", marginLeft: "8px" }}
-                                                            onClick={() => setShowEmojiPicker((prev) => !prev)}
-                                                        >
-                                                            😄
-                                                        </span>
-
-                                                        {/* Emoji Picker */}
-                                                        {showEmojiPicker && (
-                                                            <div
-                                                                style={{
-                                                                    position: "absolute",
-                                                                    bottom: "60px",
-                                                                    left: "0",
-                                                                    zIndex: 999,
-                                                                    backgroundColor: "white",
-                                                                    border: "1px solid #ccc",
-                                                                    borderRadius: "8px",
-                                                                    padding: "4px",
-                                                                }}
-                                                            >
-                                                                <div style={{ textAlign: "right" }}>
-                                                                    <IconButton
-                                                                        style={{
-                                                                            border: "none",
-                                                                            background: "transparent",
-                                                                            fontSize: "16px",
-                                                                            color: "black",
-                                                                            cursor: "pointer",
-                                                                            marginBottom: "5px",
-                                                                        }}
-                                                                        onClick={() => setShowEmojiPicker(false)}
-                                                                    >
-                                                                        <IoCloseSharp />
-                                                                    </IconButton>
-                                                                </div>
-                                                                <EmojiPicker onEmojiClick={handleEmojiSelect} />
-                                                            </div>
-                                                        )}
-
                                                         {/* Hidden File Upload */}
                                                         <input
                                                             id="file-upload"
@@ -1059,6 +1017,7 @@ const Chatpage = () => {
                                                         <IoMdSend />
                                                     </IconButton>
                                                 </form>
+
                                             </div>
                                         </div>
                                     </div>
