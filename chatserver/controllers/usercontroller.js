@@ -98,7 +98,7 @@ export const login = async (req, res) => {
                 httpOnly: true,
                 secure: isProduction,
                 sameSite: isProduction ? 'None' : 'Lax',
-                domain: "localhost",                  // dev
+                domain: "https://chatxfrontend.onrender.com",                  // dev
                 path: "/",
                 maxAge: 30 * 24 * 60 * 60 * 1000
             })
