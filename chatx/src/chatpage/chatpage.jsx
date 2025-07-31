@@ -113,16 +113,8 @@ const Chatpage = () => {
 
 
 
-    // // emoji
-    // const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-    // // Emoji select handler
-    // const handleEmojiSelect = (emojiData) => {
-    //     setAllMessage((prev) => ({
-    //         ...prev,
-    //         message: prev.message + emojiData.emoji,
-    //     }));
-    // };
+    
+   
 
 
 

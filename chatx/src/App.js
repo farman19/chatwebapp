@@ -1,11 +1,12 @@
 // import logo from './logo.svg';
+import React,  { useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import './App.css';
 import ChatPage from "./chatpage/chatpage";
 import LoginPage from './loginpage/loginpage';
 import RegisterPage from './registerpage/registerpage';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
+
 import { io } from 'socket.io-client'
 import { setOnlineUsers } from './redux/userSlice';
 import { setSocket } from './redux/socketSlice';
