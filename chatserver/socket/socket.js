@@ -48,6 +48,7 @@ io.use((socket, next) => {
     socket.userId = decoded.userId; 
     userSocketMap[socket.userId] = socket.id;
     // console.log("✅ Socket Authenticated:", socket.userId);
+     io.emit('get-online-users', Object.keys(userSocketMap));
     next();
   } catch (error) {
     console.error("❌ Socket Auth Error:", error.message);
